@@ -1,3 +1,6 @@
+---
+description: Resolve project/repo/path/branch and apply code changes
+---
 Resolve and apply repository changes for Etiyawiki Jira tasks.
 
 Use the Etiyawiki Jira issue {{args}} as the source of truth.

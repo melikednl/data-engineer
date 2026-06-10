@@ -1,3 +1,6 @@
+---
+description: Analyze Etiyawiki Jira task — classify, extract details, decide next agent
+---
 Analyze an Etiyawiki Jira task as the Master Analyst Agent.
 
 Use the etiyawiki MCP server to get issue {{args}}.

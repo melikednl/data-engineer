@@ -1,3 +1,6 @@
+---
+description: Unified Jira ops — comments, transitions, worklog, review, closure
+---
 Unified Jira operations: actions, review, and closure for Etiyawiki tasks.
 
 Use the etiyawiki MCP server to work on issue {{args}}.
