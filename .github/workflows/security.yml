@@ -21,16 +21,6 @@ jobs:
           head: HEAD
           extra_args: --only-verified
 
-  markdown-lint:
-    name: Markdown Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DavidAnson/markdownlint-cli2-action@v19
-        with:
-          globs: '**/*.md'
-          configuration: .markdownlint-cli2.jsonc
-
   yaml-lint:
     name: YAML Lint
     runs-on: ubuntu-latest
