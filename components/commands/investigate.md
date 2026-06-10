@@ -1,3 +1,7 @@
+---
+description: Data investigation and root cause analysis for DWH/ETL/SQL issues
+subtask: true
+---
 Investigate an Etiyawiki Jira task as the Data Investigation Agent.
 
 Use the etiyawiki MCP server to get issue {{args}}.

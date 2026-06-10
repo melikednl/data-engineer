@@ -4,85 +4,55 @@
   "components": {
     "commands": {
       "name": "commands",
-      "description": "All custom commands: analyze, commit, data_investigation, execute, jira_action, jira_review, project_resolver, repo_apply, review, solve, test, typecheck",
+      "description": "All 6 data-engineer commands: analyze, execute, investigate, jira, repo, review",
       "group": "commands",
       "files": {
         ".opencode/commands/analyze.md": "components/commands/analyze.md",
-        ".opencode/commands/commit.md": "components/commands/commit.md",
-        ".opencode/commands/data_investigation.md": "components/commands/data_investigation.md",
         ".opencode/commands/execute.md": "components/commands/execute.md",
-        ".opencode/commands/jira_action.md": "components/commands/jira_action.md",
-        ".opencode/commands/jira_review.md": "components/commands/jira_review.md",
-        ".opencode/commands/project_resolver.md": "components/commands/project_resolver.md",
-        ".opencode/commands/repo_apply.md": "components/commands/repo_apply.md",
-        ".opencode/commands/review.md": "components/commands/review.md",
-        ".opencode/commands/solve.md": "components/commands/solve.md",
-        ".opencode/commands/test.md": "components/commands/test.md",
-        ".opencode/commands/typecheck.md": "components/commands/typecheck.md"
+        ".opencode/commands/investigate.md": "components/commands/investigate.md",
+        ".opencode/commands/jira.md": "components/commands/jira.md",
+        ".opencode/commands/repo.md": "components/commands/repo.md",
+        ".opencode/commands/review.md": "components/commands/review.md"
       }
     },
     "commands-analyze": {
       "name": "commands-analyze",
-      "description": "Analyze Etiyawiki Jira task as Master Analyst Agent",
+      "description": "Analyze Etiyawiki Jira task — classify, extract details, decide next agent",
       "group": "commands",
       "files": {
         ".opencode/commands/analyze.md": "components/commands/analyze.md"
       }
     },
-    "commands-commit": {
-      "name": "commands-commit",
-      "description": "Create a conventional commit",
-      "group": "commands",
-      "files": {
-        ".opencode/commands/commit.md": "components/commands/commit.md"
-      }
-    },
-    "commands-data-investigation": {
-      "name": "commands-data-investigation",
-      "description": "Data Investigation Agent for Etiyawiki Jira tasks",
-      "group": "commands",
-      "files": {
-        ".opencode/commands/data_investigation.md": "components/commands/data_investigation.md"
-      }
-    },
     "commands-execute": {
       "name": "commands-execute",
-      "description": "Execute Etiyawiki Jira task with multi-agent workflow",
+      "description": "Full multi-agent workflow: analyze → resolve → execute → review → jira",
       "group": "commands",
       "files": {
         ".opencode/commands/execute.md": "components/commands/execute.md"
       }
     },
-    "commands-jira-action": {
-      "name": "commands-jira-action",
-      "description": "Perform Jira actions (comments, transitions, worklog)",
+    "commands-investigate": {
+      "name": "commands-investigate",
+      "description": "Data investigation: DWH/ETL/SQL root cause analysis with validation SQL",
       "group": "commands",
       "files": {
-        ".opencode/commands/jira_action.md": "components/commands/jira_action.md"
+        ".opencode/commands/investigate.md": "components/commands/investigate.md"
       }
     },
-    "commands-jira-review": {
-      "name": "commands-jira-review",
-      "description": "Final quality and safety review for Jira tasks",
+    "commands-jira": {
+      "name": "commands-jira",
+      "description": "Unified Jira ops: comments, transitions, worklog, review, closure",
       "group": "commands",
       "files": {
-        ".opencode/commands/jira_review.md": "components/commands/jira_review.md"
+        ".opencode/commands/jira.md": "components/commands/jira.md"
       }
     },
-    "commands-project-resolver": {
-      "name": "commands-project-resolver",
-      "description": "Resolve project/repo/path/branch for Jira tasks",
+    "commands-repo": {
+      "name": "commands-repo",
+      "description": "Resolve project/repo/path/branch + apply code changes",
       "group": "commands",
       "files": {
-        ".opencode/commands/project_resolver.md": "components/commands/project_resolver.md"
-      }
-    },
-    "commands-repo-apply": {
-      "name": "commands-repo-apply",
-      "description": "Apply repository/file/code changes",
-      "group": "commands",
-      "files": {
-        ".opencode/commands/repo_apply.md": "components/commands/repo_apply.md"
+        ".opencode/commands/repo.md": "components/commands/repo.md"
       }
     },
     "commands-review": {
@@ -93,28 +63,19 @@
         ".opencode/commands/review.md": "components/commands/review.md"
       }
     },
-    "commands-solve": {
-      "name": "commands-solve",
-      "description": "Solve a Jira task with minimum user intervention",
-      "group": "commands",
+    "commands-legacy": {
+      "name": "commands-legacy",
+      "description": "Legacy commands (commit, test, typecheck, data_investigation, jira_action, jira_review, project_resolver, repo_apply)",
+      "group": "commands-legacy",
       "files": {
-        ".opencode/commands/solve.md": "components/commands/solve.md"
-      }
-    },
-    "commands-test": {
-      "name": "commands-test",
-      "description": "Run tests and fix failures",
-      "group": "commands",
-      "files": {
-        ".opencode/commands/test.md": "components/commands/test.md"
-      }
-    },
-    "commands-typecheck": {
-      "name": "commands-typecheck",
-      "description": "Run type checking and fix errors",
-      "group": "commands",
-      "files": {
-        ".opencode/commands/typecheck.md": "components/commands/typecheck.md"
+        ".opencode/commands/commit.md": "components/commands_legacy/commit.md",
+        ".opencode/commands/test.md": "components/commands_legacy/test.md",
+        ".opencode/commands/typecheck.md": "components/commands_legacy/typecheck.md",
+        ".opencode/commands/data_investigation.md": "components/commands_legacy/data_investigation.md",
+        ".opencode/commands/jira_action.md": "components/commands_legacy/jira_action.md",
+        ".opencode/commands/jira_review.md": "components/commands_legacy/jira_review.md",
+        ".opencode/commands/project_resolver.md": "components/commands_legacy/project_resolver.md",
+        ".opencode/commands/repo_apply.md": "components/commands_legacy/repo_apply.md"
       }
     },
     "skills": {

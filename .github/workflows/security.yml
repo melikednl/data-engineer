@@ -1,0 +1,86 @@
+name: Security & Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secret-scan:
+    name: Secret Scanning (truffleHog)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: '**/*.md'
+          config: |
+            {
+              "MD013": false,
+              "MD024": false,
+              "MD033": false
+            }
+
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: registry.json
+          config_data: |
+            rules:
+              document-start: false
+
+  shellcheck:
+    name: ShellCheck (install.sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: ./
+          severity: warning
+
+  registry-validate:
+    name: Validate Registry Components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate component files exist
+        run: |
+          errors=0
+          for file in $(python3 -c "
+            import json
+            with open('registry.json') as f:
+              reg = json.load(f)
+            for comp in reg['components'].values():
+              for dest, src in comp['files'].items():
+                print(src)
+          "); do
+            if [ ! -f "$file" ]; then
+              echo "❌ MISSING: $file"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "Registry validation failed: $errors missing file(s)"
+            exit 1
+          fi
+          echo "✅ All registry component files exist"

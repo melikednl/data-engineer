@@ -72,7 +72,7 @@ install_via_curl() {
   mkdir -p "$COMMANDS_DIR" "$SKILLS_DIR"
 
   echo -e "${CYAN}Downloading commands...${NC}"
-  for cmd in analyze commit data_investigation execute jira_action jira_review project_resolver repo_apply review solve test typecheck; do
+  for cmd in analyze execute investigate jira repo review; do
     url="$BASE_URL/commands/$cmd.md"
     dest="$COMMANDS_DIR/$cmd.md"
     echo "  → $cmd.md"
@@ -95,9 +95,8 @@ install_via_curl() {
     echo ""
     echo -e "${YELLOW}   OpenCode'u projende başlat: opencode${NC}"
     echo -e "${YELLOW}   Kullanılabilir komutlar:${NC}"
-    echo -e "${YELLOW}   /analyze  /commit  /data_investigation  /execute${NC}"
-    echo -e "${YELLOW}   /jira_action  /jira_review  /project_resolver${NC}"
-    echo -e "${YELLOW}   /repo_apply  /review  /solve  /test  /typecheck${NC}"
+    echo -e "${YELLOW}   /analyze  /execute  /investigate  /jira${NC}"
+    echo -e "${YELLOW}   /repo  /review${NC}"
   fi
 }
 

@@ -1,3 +1,7 @@
+---
+description: Full multi-agent workflow execution for Jira tasks
+subtask: true
+---
 Execute an Etiyawiki Jira task using the professional multi-agent workflow.
 
 Use the etiyawiki MCP server to get issue {{args}}.
