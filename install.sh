@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# data-engineer installer
 set -euo pipefail
 
 REPO="melikednl/data-engineer"
