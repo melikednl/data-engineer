@@ -1,0 +1,148 @@
+{
+  "name": "data-engineer",
+  "description": "Data Engineer toolkit: Jira task analysis, investigation, and resolution for Etiyawiki",
+  "components": {
+    "commands": {
+      "name": "commands",
+      "description": "All custom commands: analyze, commit, data_investigation, execute, jira_action, jira_review, project_resolver, repo_apply, review, solve, test, typecheck",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/analyze.md": "components/commands/analyze.md",
+        ".opencode/commands/commit.md": "components/commands/commit.md",
+        ".opencode/commands/data_investigation.md": "components/commands/data_investigation.md",
+        ".opencode/commands/execute.md": "components/commands/execute.md",
+        ".opencode/commands/jira_action.md": "components/commands/jira_action.md",
+        ".opencode/commands/jira_review.md": "components/commands/jira_review.md",
+        ".opencode/commands/project_resolver.md": "components/commands/project_resolver.md",
+        ".opencode/commands/repo_apply.md": "components/commands/repo_apply.md",
+        ".opencode/commands/review.md": "components/commands/review.md",
+        ".opencode/commands/solve.md": "components/commands/solve.md",
+        ".opencode/commands/test.md": "components/commands/test.md",
+        ".opencode/commands/typecheck.md": "components/commands/typecheck.md"
+      }
+    },
+    "commands-analyze": {
+      "name": "commands-analyze",
+      "description": "Analyze Etiyawiki Jira task as Master Analyst Agent",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/analyze.md": "components/commands/analyze.md"
+      }
+    },
+    "commands-commit": {
+      "name": "commands-commit",
+      "description": "Create a conventional commit",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/commit.md": "components/commands/commit.md"
+      }
+    },
+    "commands-data-investigation": {
+      "name": "commands-data-investigation",
+      "description": "Data Investigation Agent for Etiyawiki Jira tasks",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/data_investigation.md": "components/commands/data_investigation.md"
+      }
+    },
+    "commands-execute": {
+      "name": "commands-execute",
+      "description": "Execute Etiyawiki Jira task with multi-agent workflow",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/execute.md": "components/commands/execute.md"
+      }
+    },
+    "commands-jira-action": {
+      "name": "commands-jira-action",
+      "description": "Perform Jira actions (comments, transitions, worklog)",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/jira_action.md": "components/commands/jira_action.md"
+      }
+    },
+    "commands-jira-review": {
+      "name": "commands-jira-review",
+      "description": "Final quality and safety review for Jira tasks",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/jira_review.md": "components/commands/jira_review.md"
+      }
+    },
+    "commands-project-resolver": {
+      "name": "commands-project-resolver",
+      "description": "Resolve project/repo/path/branch for Jira tasks",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/project_resolver.md": "components/commands/project_resolver.md"
+      }
+    },
+    "commands-repo-apply": {
+      "name": "commands-repo-apply",
+      "description": "Apply repository/file/code changes",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/repo_apply.md": "components/commands/repo_apply.md"
+      }
+    },
+    "commands-review": {
+      "name": "commands-review",
+      "description": "Review code changes for quality",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/review.md": "components/commands/review.md"
+      }
+    },
+    "commands-solve": {
+      "name": "commands-solve",
+      "description": "Solve a Jira task with minimum user intervention",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/solve.md": "components/commands/solve.md"
+      }
+    },
+    "commands-test": {
+      "name": "commands-test",
+      "description": "Run tests and fix failures",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/test.md": "components/commands/test.md"
+      }
+    },
+    "commands-typecheck": {
+      "name": "commands-typecheck",
+      "description": "Run type checking and fix errors",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/typecheck.md": "components/commands/typecheck.md"
+      }
+    },
+    "skills": {
+      "name": "skills",
+      "description": "All skills: caveman, context7",
+      "group": "skills",
+      "files": {
+        ".opencode/skills/caveman/SKILL.md": "components/skills/caveman/SKILL.md",
+        ".opencode/skills/context7/SKILL.md": "components/skills/context7/SKILL.md",
+        ".opencode/skills/context7/library-registry.md": "components/skills/context7/library-registry.md"
+      }
+    },
+    "skill-caveman": {
+      "name": "skill-caveman",
+      "description": "Ultra-compressed caveman communication mode",
+      "group": "skills",
+      "files": {
+        ".opencode/skills/caveman/SKILL.md": "components/skills/caveman/SKILL.md"
+      }
+    },
+    "skill-context7": {
+      "name": "skill-context7",
+      "description": "Retrieve up-to-date library docs via Context7 API",
+      "group": "skills",
+      "files": {
+        ".opencode/skills/context7/SKILL.md": "components/skills/context7/SKILL.md",
+        ".opencode/skills/context7/library-registry.md": "components/skills/context7/library-registry.md"
+      }
+    }
+  }
+}
