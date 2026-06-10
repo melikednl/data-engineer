@@ -35,7 +35,7 @@ done
 if [ "$TARGET" = "global" ]; then
   COMMANDS_DIR="$HOME/.config/opencode/commands"
   SKILLS_DIR="$HOME/.config/opencode/skills"
-  echo -e "${GLOBAL}→ Installing globally (~/.config/opencode/)${NC}"
+  echo -e "${GREEN}→ Installing globally (~/.config/opencode/)${NC}"
 else
   PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
   COMMANDS_DIR="$PROJECT_ROOT/.opencode/commands"
