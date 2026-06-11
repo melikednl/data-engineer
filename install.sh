@@ -20,11 +20,30 @@ echo ""
 # --- Detect CLI ---
 if command -v devin &>/dev/null; then
   DETECTED_CLI="devin"
+elif [ -d "$HOME/.codeium/windsurf" ]; then
+  DETECTED_CLI="devin"
 elif command -v opencode &>/dev/null; then
   DETECTED_CLI="opencode"
 else
   DETECTED_CLI="opencode"
 fi
+
+# --- Detect Windsurf/Devin install path ---
+detect_devin_path() {
+  local paths=(
+    "$HOME/.codeium/windsurf/skills"
+    "$HOME/.codeium/windsurf-next/skills"
+    "$HOME/.codeium/windsurf-insiders/skills"
+    "$HOME/.config/devin/skills"
+  )
+  for p in "${paths[@]}"; do
+    if [ -d "$(dirname "$p")" ]; then
+      echo "$p"
+      return
+    fi
+  done
+  echo "$HOME/.codeium/windsurf/skills"
+}
 
 # --- Parse args ---
 CLI="$DETECTED_CLI"
@@ -34,18 +53,19 @@ while [[ $# -gt 0 ]]; do
     --global) TARGET="global" ;;
     --project) TARGET="project" ;;
     --opencode) CLI="opencode" ;;
-    --devin) CLI="devin" ;;
+    --devin|--windsurf) CLI="devin" ;;
     --help|-h)
       echo "Usage: install.sh [options]"
       echo ""
       echo "Options:"
       echo "  --opencode    Install for opencode (default if opencode detected)"
-      echo "  --devin       Install for Devin CLI (default if devin detected)"
+      echo "  --devin       Install for Devin/Windsurf CLI"
+      echo "  --windsurf    Same as --devin"
       echo "  --global      Install globally (default)"
       echo "  --project     Install in current project only"
       echo "  --help, -h    Show this help"
       echo ""
-      echo "Auto-detection: prefers Devin CLI if available, else opencode"
+      echo "Auto-detection: Devin/Windsurf CLI > opencode"
       exit 0
       ;;
     *) echo "Unknown: $1"; exit 1 ;;
@@ -109,18 +129,18 @@ install_opencode() {
   fi
 }
 
-# --- Install Devin CLI ---
+# --- Install Windsurf/Devin ---
 install_devin() {
   if [ "$TARGET" = "global" ]; then
-    SKILLS_DIR="$HOME/.config/devin/skills"
-    echo -e "${GREEN}→ Installing for Devin CLI (global — ~/.config/devin/skills/)${NC}"
+    SKILLS_DIR="$(detect_devin_path)"
+    echo -e "${GREEN}→ Installing for Windsurf/Devin (global — $SKILLS_DIR)${NC}"
   else
     PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
     SKILLS_DIR="$PROJECT_ROOT/.devin/skills"
-    echo -e "${GREEN}→ Installing for Devin CLI (project — $PROJECT_ROOT/.devin/skills/)${NC}"
+    echo -e "${GREEN}→ Installing for Windsurf/Devin (project — $SKILLS_DIR)${NC}"
   fi
 
-  echo -e "${CYAN}Downloading Devin skills...${NC}"
+  echo -e "${CYAN}Downloading skills...${NC}"
   for skill in analyze execute investigate jira repo review; do
     dest="$SKILLS_DIR/$skill"
     mkdir -p "$dest"
@@ -130,7 +150,7 @@ install_devin() {
   done
 
   echo ""
-  echo -e "${GREEN}✅ Installed for Devin CLI!${NC}"
+  echo -e "${GREEN}✅ Installed for Windsurf/Devin CLI!${NC}"
   echo -e "${YELLOW}   List skills: devin skills list${NC}"
   echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review${NC}"
 }

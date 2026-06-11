@@ -29,10 +29,10 @@ ocx add data-engineer/commands
 ocx add data-engineer/skills
 ```
 
-### Devin CLI
+### Windsurf / Devin CLI
 
 ```bash
-# Global (tüm projelerde) — default
+# Global (tüm projelerde) — ~/.codeium/windsurf/skills/ veya ~/.config/devin/skills/
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --global
 
 # Proje bazlı (.devin/skills/)
@@ -75,7 +75,7 @@ Ardından TUI'de:
 /repo PROJ-654
 ```
 
-### Devin CLI
+### Windsurf / Devin CLI
 
 ```bash
 devin
