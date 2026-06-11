@@ -32,10 +32,10 @@ ocx add data-engineer/skills
 ### Windsurf / Devin CLI
 
 ```bash
-# Global — workflows → ~/.codeium/windsurf/workflows/, skills → ~/.codeium/windsurf/skills/
+# Global — commands → ~/.codeium/windsurf/global_workflows/, skills → ~/.codeium/windsurf/skills/
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --global
 
-# Proje bazlı (.devin/workflows/ + .devin/skills/)
+# Proje bazlı (.devin/global_workflows/ + .devin/skills/)
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --project
 ```
 

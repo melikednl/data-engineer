@@ -133,7 +133,7 @@ install_opencode() {
 install_devin() {
   if [ "$TARGET" = "global" ]; then
     WINDSURF_DIR="$(detect_windsurf_dir)"
-    WORKFLOWS_DIR="$WINDSURF_DIR/workflows"
+    WORKFLOWS_DIR="$WINDSURF_DIR/global_workflows"
     SKILLS_DIR="$WINDSURF_DIR/skills"
     echo -e "${GREEN}→ Installing for Windsurf/Devin (global — $WINDSURF_DIR)${NC}"
   else
@@ -148,7 +148,7 @@ install_devin() {
     dest="$WORKFLOWS_DIR/$cmd"
     mkdir -p "$dest"
     curl -sfL "$BASE_URL/devin-workflows/$cmd/SKILL.md" -o "$dest/SKILL.md" \
-      && echo "  → workflows/$cmd/SKILL.md" \
+      && echo "  → global_workflows/$cmd/SKILL.md" \
       || echo -e "  ${YELLOW}⚠  Failed: $cmd/SKILL.md${NC}"
   done
 
