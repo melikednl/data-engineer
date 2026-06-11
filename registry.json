@@ -105,17 +105,17 @@
         ".opencode/skills/context7/library-registry.md": "components/skills/context7/library-registry.md"
       }
     },
-    "devin-skills": {
-      "name": "devin-skills",
-      "description": "All 6 Devin CLI skills: analyze, execute, investigate, jira, repo, review",
-      "group": "devin-skills",
+    "devin-workflows": {
+      "name": "devin-workflows",
+      "description": "All 6 Devin CLI workflows: analyze, execute, investigate, jira, repo, review",
+      "group": "devin-workflows",
       "files": {
-        ".devin/skills/analyze/SKILL.md": "components/devin-skills/analyze/SKILL.md",
-        ".devin/skills/execute/SKILL.md": "components/devin-skills/execute/SKILL.md",
-        ".devin/skills/investigate/SKILL.md": "components/devin-skills/investigate/SKILL.md",
-        ".devin/skills/jira/SKILL.md": "components/devin-skills/jira/SKILL.md",
-        ".devin/skills/repo/SKILL.md": "components/devin-skills/repo/SKILL.md",
-        ".devin/skills/review/SKILL.md": "components/devin-skills/review/SKILL.md"
+        ".devin/workflows/analyze/SKILL.md": "components/devin-workflows/analyze/SKILL.md",
+        ".devin/workflows/execute/SKILL.md": "components/devin-workflows/execute/SKILL.md",
+        ".devin/workflows/investigate/SKILL.md": "components/devin-workflows/investigate/SKILL.md",
+        ".devin/workflows/jira/SKILL.md": "components/devin-workflows/jira/SKILL.md",
+        ".devin/workflows/repo/SKILL.md": "components/devin-workflows/repo/SKILL.md",
+        ".devin/workflows/review/SKILL.md": "components/devin-workflows/review/SKILL.md"
       }
     }
   }

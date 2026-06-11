@@ -28,21 +28,21 @@ else
   DETECTED_CLI="opencode"
 fi
 
-# --- Detect Windsurf/Devin install path ---
-detect_devin_path() {
+# --- Detect Windsurf base dir ---
+detect_windsurf_dir() {
   local paths=(
-    "$HOME/.codeium/windsurf/skills"
-    "$HOME/.codeium/windsurf-next/skills"
-    "$HOME/.codeium/windsurf-insiders/skills"
-    "$HOME/.config/devin/skills"
+    "$HOME/.codeium/windsurf"
+    "$HOME/.codeium/windsurf-next"
+    "$HOME/.codeium/windsurf-insiders"
+    "$HOME/.config/devin"
   )
   for p in "${paths[@]}"; do
-    if [ -d "$(dirname "$p")" ]; then
+    if [ -d "$p" ]; then
       echo "$p"
       return
     fi
   done
-  echo "$HOME/.codeium/windsurf/skills"
+  echo "$HOME/.codeium/windsurf"
 }
 
 # --- Parse args ---
@@ -132,27 +132,45 @@ install_opencode() {
 # --- Install Windsurf/Devin ---
 install_devin() {
   if [ "$TARGET" = "global" ]; then
-    SKILLS_DIR="$(detect_devin_path)"
-    echo -e "${GREEN}→ Installing for Windsurf/Devin (global — $SKILLS_DIR)${NC}"
+    WINDSURF_DIR="$(detect_windsurf_dir)"
+    WORKFLOWS_DIR="$WINDSURF_DIR/workflows"
+    SKILLS_DIR="$WINDSURF_DIR/skills"
+    echo -e "${GREEN}→ Installing for Windsurf/Devin (global — $WINDSURF_DIR)${NC}"
   else
     PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+    WORKFLOWS_DIR="$PROJECT_ROOT/.devin/workflows"
     SKILLS_DIR="$PROJECT_ROOT/.devin/skills"
-    echo -e "${GREEN}→ Installing for Windsurf/Devin (project — $SKILLS_DIR)${NC}"
+    echo -e "${GREEN}→ Installing for Windsurf/Devin (project — $PROJECT_ROOT/.devin/)${NC}"
   fi
 
+  echo -e "${CYAN}Downloading workflows...${NC}"
+  for cmd in analyze execute investigate jira repo review; do
+    dest="$WORKFLOWS_DIR/$cmd"
+    mkdir -p "$dest"
+    curl -sfL "$BASE_URL/devin-workflows/$cmd/SKILL.md" -o "$dest/SKILL.md" \
+      && echo "  → workflows/$cmd/SKILL.md" \
+      || echo -e "  ${YELLOW}⚠  Failed: $cmd/SKILL.md${NC}"
+  done
+
   echo -e "${CYAN}Downloading skills...${NC}"
-  for skill in analyze execute investigate jira repo review; do
+  for skill in caveman context7; do
     dest="$SKILLS_DIR/$skill"
     mkdir -p "$dest"
-    curl -sfL "$BASE_URL/devin-skills/$skill/SKILL.md" -o "$dest/SKILL.md" \
-      && echo "  → $skill/SKILL.md" \
-      || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
+    if [ "$skill" = "context7" ]; then
+      curl -sfL "$BASE_URL/skills/context7/SKILL.md" -o "$dest/SKILL.md" \
+        && echo "  → skills/$skill/SKILL.md" \
+        || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
+    else
+      curl -sfL "$BASE_URL/skills/$skill/SKILL.md" -o "$dest/SKILL.md" \
+        && echo "  → skills/$skill/SKILL.md" \
+        || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
+    fi
   done
 
   echo ""
   echo -e "${GREEN}✅ Installed for Windsurf/Devin CLI!${NC}"
-  echo -e "${YELLOW}   List skills: devin skills list${NC}"
-  echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review${NC}"
+  echo -e "${YELLOW}   Workflows: /analyze /execute /investigate /jira /repo /review${NC}"
+  echo -e "${YELLOW}   Skills: caveman, context7${NC}"
 }
 
 # --- Run ---

@@ -32,10 +32,10 @@ ocx add data-engineer/skills
 ### Windsurf / Devin CLI
 
 ```bash
-# Global (tüm projelerde) — ~/.codeium/windsurf/skills/ veya ~/.config/devin/skills/
+# Global — workflows → ~/.codeium/windsurf/workflows/, skills → ~/.codeium/windsurf/skills/
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --global
 
-# Proje bazlı (.devin/skills/)
+# Proje bazlı (.devin/workflows/ + .devin/skills/)
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --project
 ```
 
@@ -91,6 +91,8 @@ Ardından:
 /repo PROJ-654
 ```
 
+Workflow'lar `/analyze`, `/execute` vb. ile çağrılır. Skill'ler (`caveman`, `context7`) otomatik yüklenir.
+
 MCP sunucularını `.devin/config.json` dosyasında yapılandırın:
 
 ```json
@@ -127,7 +129,7 @@ data-engineer/
 ├── install.sh                           # Single-command installer (opencode + Devin)
 ├── components/
 │   ├── commands/                        # 6 core opencode commands
-│   ├── devin-skills/                    # 6 Devin CLI SKILL.md files
+│   ├── devin-workflows/                 # 6 Devin CLI workflow SKILL.md files
 │   │   ├── analyze/SKILL.md
 │   │   ├── execute/SKILL.md
 │   │   ├── investigate/SKILL.md
