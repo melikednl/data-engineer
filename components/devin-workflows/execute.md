@@ -1,17 +1,3 @@
----
-name: execute
-description: Full multi-agent workflow execution for Jira tasks
-argument-hint: "[issue]"
-subagent: true
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - exec
-  - edit
-triggers:
-  - user
----
 Execute an Etiyawiki Jira task using the professional multi-agent workflow.
 
 Use the etiyawiki MCP server to get issue $ARGUMENTS[0].

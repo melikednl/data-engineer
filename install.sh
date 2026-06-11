@@ -145,11 +145,9 @@ install_devin() {
 
   echo -e "${CYAN}Downloading workflows...${NC}"
   for cmd in analyze execute investigate jira repo review; do
-    dest="$WORKFLOWS_DIR/$cmd"
-    mkdir -p "$dest"
-    curl -sfL "$BASE_URL/devin-workflows/$cmd/SKILL.md" -o "$dest/SKILL.md" \
-      && echo "  → global_workflows/$cmd/SKILL.md" \
-      || echo -e "  ${YELLOW}⚠  Failed: $cmd/SKILL.md${NC}"
+    curl -sfL "$BASE_URL/devin-workflows/$cmd.md" -o "$WORKFLOWS_DIR/$cmd.md" \
+      && echo "  → global_workflows/$cmd.md" \
+      || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
   done
 
   echo -e "${CYAN}Downloading skills...${NC}"

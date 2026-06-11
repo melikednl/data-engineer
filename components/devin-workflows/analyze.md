@@ -1,14 +1,3 @@
----
-name: analyze
-description: Analyze Etiyawiki Jira task — classify, extract details, decide next agent
-argument-hint: "[issue]"
-allowed-tools:
-  - read
-  - grep
-  - glob
-triggers:
-  - user
----
 Analyze an Etiyawiki Jira task as the Master Analyst Agent.
 
 Use the etiyawiki MCP server to get issue $ARGUMENTS[0].

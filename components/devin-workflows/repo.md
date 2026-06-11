@@ -1,16 +1,3 @@
----
-name: repo
-description: Resolve project/repo/path/branch and apply code changes
-argument-hint: "[issue]"
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - exec
-  - edit
-triggers:
-  - user
----
 Resolve and apply repository changes for Etiyawiki Jira tasks.
 
 Use the Etiyawiki Jira issue $ARGUMENTS[0] as the source of truth.

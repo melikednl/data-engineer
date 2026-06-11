@@ -1,12 +1,3 @@
----
-name: jira
-description: Unified Jira ops — comments, transitions, worklog, review, closure
-argument-hint: "[issue]"
-allowed-tools:
-  - read
-triggers:
-  - user
----
 Unified Jira operations: actions, review, and closure for Etiyawiki tasks.
 
 Use the etiyawiki MCP server to work on issue $ARGUMENTS[0].

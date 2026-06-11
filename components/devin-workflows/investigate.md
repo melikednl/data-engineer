@@ -1,16 +1,3 @@
----
-name: investigate
-description: Data investigation and root cause analysis for DWH/ETL/SQL issues
-argument-hint: "[issue]"
-subagent: true
-allowed-tools:
-  - read
-  - grep
-  - glob
-  - exec
-triggers:
-  - user
----
 Investigate an Etiyawiki Jira task as the Data Investigation Agent.
 
 Use the etiyawiki MCP server to get issue $ARGUMENTS[0].

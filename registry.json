@@ -110,12 +110,12 @@
       "description": "All 6 Devin CLI workflows: analyze, execute, investigate, jira, repo, review",
       "group": "devin-workflows",
       "files": {
-        ".devin/global_workflows/analyze/SKILL.md": "components/devin-workflows/analyze/SKILL.md",
-        ".devin/global_workflows/execute/SKILL.md": "components/devin-workflows/execute/SKILL.md",
-        ".devin/global_workflows/investigate/SKILL.md": "components/devin-workflows/investigate/SKILL.md",
-        ".devin/global_workflows/jira/SKILL.md": "components/devin-workflows/jira/SKILL.md",
-        ".devin/global_workflows/repo/SKILL.md": "components/devin-workflows/repo/SKILL.md",
-        ".devin/global_workflows/review/SKILL.md": "components/devin-workflows/review/SKILL.md"
+        ".devin/global_workflows/analyze.md": "components/devin-workflows/analyze.md",
+        ".devin/global_workflows/execute.md": "components/devin-workflows/execute.md",
+        ".devin/global_workflows/investigate.md": "components/devin-workflows/investigate.md",
+        ".devin/global_workflows/jira.md": "components/devin-workflows/jira.md",
+        ".devin/global_workflows/repo.md": "components/devin-workflows/repo.md",
+        ".devin/global_workflows/review.md": "components/devin-workflows/review.md"
       }
     }
   }
