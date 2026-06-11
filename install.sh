@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# data-engineer installer
+# data-engineer installer — opencode + Devin CLI support
 set -euo pipefail
 
 REPO="melikednl/data-engineer"
@@ -13,19 +13,39 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║   Data Engineer - Opencode Pack Installer║${NC}"
+echo -e "${CYAN}║   Data Engineer — Pack Installer         ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
 echo ""
 
+# --- Detect CLI ---
+if command -v devin &>/dev/null; then
+  DETECTED_CLI="devin"
+elif command -v opencode &>/dev/null; then
+  DETECTED_CLI="opencode"
+else
+  DETECTED_CLI="opencode"
+fi
+
 # --- Parse args ---
-TARGET="project"
+CLI="$DETECTED_CLI"
+TARGET="global"
 while [[ $# -gt 0 ]]; do
   case $1 in
     --global) TARGET="global" ;;
+    --project) TARGET="project" ;;
+    --opencode) CLI="opencode" ;;
+    --devin) CLI="devin" ;;
     --help|-h)
-      echo "Usage: install.sh [--global]"
-      echo "  --global    Install globally (~/.config/opencode/)"
-      echo "  (default)   Install in current project (.opencode/)"
+      echo "Usage: install.sh [options]"
+      echo ""
+      echo "Options:"
+      echo "  --opencode    Install for opencode (default if opencode detected)"
+      echo "  --devin       Install for Devin CLI (default if devin detected)"
+      echo "  --global      Install globally (default)"
+      echo "  --project     Install in current project only"
+      echo "  --help, -h    Show this help"
+      echo ""
+      echo "Auto-detection: prefers Devin CLI if available, else opencode"
       exit 0
       ;;
     *) echo "Unknown: $1"; exit 1 ;;
@@ -33,78 +53,93 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-if [ "$TARGET" = "global" ]; then
-  COMMANDS_DIR="$HOME/.config/opencode/commands"
-  SKILLS_DIR="$HOME/.config/opencode/skills"
-  echo -e "${GREEN}→ Installing globally (~/.config/opencode/)${NC}"
-else
-  PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
-  COMMANDS_DIR="$PROJECT_ROOT/.opencode/commands"
-  SKILLS_DIR="$PROJECT_ROOT/.opencode/skills"
-  echo -e "${GREEN}→ Installing in project ($PROJECT_ROOT/.opencode/)${NC}"
-fi
-
-# --- Detect mode ---
-USE_OCX=false
-if command -v ocx &>/dev/null; then
-  USE_OCX=true
-fi
-
-install_via_ocx() {
-  echo -e "${CYAN}📦 OCX detected — installing via ocx...${NC}"
+# --- Install opencode ---
+install_opencode() {
   if [ "$TARGET" = "global" ]; then
-    ocx registry add data-engineer "$REGISTRY_URL" --global 2>/dev/null || true
-    ocx add data-engineer/commands --global
-    ocx add data-engineer/skills --global
+    COMMANDS_DIR="$HOME/.config/opencode/commands"
+    SKILLS_DIR="$HOME/.config/opencode/skills"
+    echo -e "${GREEN}→ Installing for opencode (global — ~/.config/opencode/)${NC}"
   else
-    ocx init 2>/dev/null || true
-    ocx registry add data-engineer "$REGISTRY_URL" 2>/dev/null || true
-    ocx add data-engineer/commands
-    ocx add data-engineer/skills
+    PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+    COMMANDS_DIR="$PROJECT_ROOT/.opencode/commands"
+    SKILLS_DIR="$PROJECT_ROOT/.opencode/skills"
+    echo -e "${GREEN}→ Installing for opencode (project — $PROJECT_ROOT/.opencode/)${NC}"
   fi
-  echo -e "${GREEN}✅ Installed via OCX!${NC}"
-}
 
-install_via_curl() {
-  echo -e "${YELLOW}📦 OCX not found — installing via curl (direct copy)${NC}"
-  echo -e "${YELLOW}   Install OCX for better update management: curl -fsSL https://ocx.kdco.dev/install.sh | sh${NC}"
-  echo ""
+  # OCX mode
+  if command -v ocx &>/dev/null; then
+    echo -e "${CYAN}📦 OCX detected — installing via ocx...${NC}"
+    if [ "$TARGET" = "global" ]; then
+      ocx registry add data-engineer "$REGISTRY_URL" --global 2>/dev/null || true
+      ocx add data-engineer/commands --global
+      ocx add data-engineer/skills --global
+    else
+      ocx init 2>/dev/null || true
+      ocx registry add data-engineer "$REGISTRY_URL" 2>/dev/null || true
+      ocx add data-engineer/commands
+      ocx add data-engineer/skills
+    fi
+    echo -e "${GREEN}✅ Installed via OCX!${NC}"
+    return
+  fi
 
+  # curl mode
+  echo -e "${YELLOW}📦 Installing via curl (direct copy)${NC}"
   mkdir -p "$COMMANDS_DIR" "$SKILLS_DIR"
 
   echo -e "${CYAN}Downloading commands...${NC}"
   for cmd in analyze execute investigate jira repo review; do
-    url="$BASE_URL/commands/$cmd.md"
-    dest="$COMMANDS_DIR/$cmd.md"
-    echo "  → $cmd.md"
-    curl -sfL "$url" -o "$dest" || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
+    curl -sfL "$BASE_URL/commands/$cmd.md" -o "$COMMANDS_DIR/$cmd.md" \
+      && echo "  → $cmd.md" \
+      || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
   done
 
   echo -e "${CYAN}Downloading skills...${NC}"
   for skill_file in caveman/SKILL.md context7/SKILL.md context7/library-registry.md; do
-    url="$BASE_URL/skills/$skill_file"
-    dest="$SKILLS_DIR/$skill_file"
-    mkdir -p "$(dirname "$dest")"
-    echo "  → $skill_file"
-    curl -sfL "$url" -o "$dest" || echo -e "  ${YELLOW}⚠  Failed: $skill_file${NC}"
+    mkdir -p "$SKILLS_DIR/$(dirname "$skill_file")"
+    curl -sfL "$BASE_URL/skills/$skill_file" -o "$SKILLS_DIR/$skill_file" \
+      && echo "  → $skill_file" \
+      || echo -e "  ${YELLOW}⚠  Failed: $skill_file${NC}"
   done
 
-  echo ""
-  echo -e "${GREEN}✅ Installed successfully!${NC}"
-
+  echo -e "${GREEN}✅ Installed for opencode!${NC}"
   if [ "$TARGET" = "project" ]; then
-    echo ""
-    echo -e "${YELLOW}   OpenCode'u projende başlat: opencode${NC}"
-    echo -e "${YELLOW}   Kullanılabilir komutlar:${NC}"
-    echo -e "${YELLOW}   /analyze  /execute  /investigate  /jira${NC}"
-    echo -e "${YELLOW}   /repo  /review${NC}"
+    echo -e "${YELLOW}   Start: opencode${NC}"
+    echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review${NC}"
   fi
 }
 
-if [ "$USE_OCX" = true ]; then
-  install_via_ocx
+# --- Install Devin CLI ---
+install_devin() {
+  if [ "$TARGET" = "global" ]; then
+    SKILLS_DIR="$HOME/.config/devin/skills"
+    echo -e "${GREEN}→ Installing for Devin CLI (global — ~/.config/devin/skills/)${NC}"
+  else
+    PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
+    SKILLS_DIR="$PROJECT_ROOT/.devin/skills"
+    echo -e "${GREEN}→ Installing for Devin CLI (project — $PROJECT_ROOT/.devin/skills/)${NC}"
+  fi
+
+  echo -e "${CYAN}Downloading Devin skills...${NC}"
+  for skill in analyze execute investigate jira repo review; do
+    dest="$SKILLS_DIR/$skill"
+    mkdir -p "$dest"
+    curl -sfL "$BASE_URL/devin-skills/$skill/SKILL.md" -o "$dest/SKILL.md" \
+      && echo "  → $skill/SKILL.md" \
+      || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
+  done
+
+  echo ""
+  echo -e "${GREEN}✅ Installed for Devin CLI!${NC}"
+  echo -e "${YELLOW}   List skills: devin skills list${NC}"
+  echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review${NC}"
+}
+
+# --- Run ---
+if [ "$CLI" = "devin" ]; then
+  install_devin
 else
-  install_via_curl
+  install_opencode
 fi
 
 echo ""

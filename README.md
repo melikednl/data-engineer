@@ -1,20 +1,26 @@
-# Data Engineer — Opencode Pack
+# Data Engineer — Opencode & Devin CLI Pack
 
-Etiyawiki Jira işlerini çözmek, analiz yapmak ve problemleri gidermek için opencode command ve skill paketi.
+Etiyawiki Jira işlerini çözmek, analiz yapmak ve problemleri gidermek için opencode ve Devin CLI command/skill paketi.
 
 ## Kurulum
+
+Tek komut — CLI otomatik algılanır (Devin CLI varsa Devin'e, yoksa opencode'a kurar):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh
 ```
 
-Tüm projelerde kullanmak için (global):
+### opencode
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --global
+# Global (tüm projelerde)
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --opencode --global
+
+# Proje bazlı
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --opencode --project
 ```
 
-### OCX ile (önerilen, update desteği)
+#### OCX ile (önerilen, update desteği)
 
 ```bash
 curl -fsSL https://ocx.kdco.dev/install.sh | sh
@@ -23,18 +29,20 @@ ocx add data-engineer/commands
 ocx add data-engineer/skills
 ```
 
-### Tek tek komut yükleme
+### Devin CLI
 
 ```bash
-ocx add data-engineer/commands-analyze
-ocx add data-engineer/commands-investigate
-ocx add data-engineer/commands-jira
+# Global (tüm projelerde) — default
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --global
+
+# Proje bazlı (.devin/skills/)
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --project
 ```
 
-## Commands (6)
+## Commands / Skills (6)
 
-| Command | Subtask | Description |
-|---------|---------|-------------|
+| Command | Subagent | Description |
+|---------|----------|-------------|
 | `/analyze` | — | Jira task'ini analiz et, sınıflandır, detayları çıkar |
 | `/execute` | ✅ | Çoklu-agent workflow ile Jira task'ini uçtan uca çöz |
 | `/investigate` | ✅ | DWH/ETL/SQL veri inceleme ve kök neden analizi |
@@ -51,6 +59,8 @@ ocx add data-engineer/commands-jira
 
 ## Kullanım
 
+### opencode
+
 ```bash
 opencode
 ```
@@ -63,6 +73,34 @@ Ardından TUI'de:
 /investigate PROJ-456
 /jira PROJ-321
 /repo PROJ-654
+```
+
+### Devin CLI
+
+```bash
+devin
+```
+
+Ardından:
+
+```
+/analyze PROJ-123
+/execute PROJ-789
+/investigate PROJ-456
+/jira PROJ-321
+/repo PROJ-654
+```
+
+MCP sunucularını `.devin/config.json` dosyasında yapılandırın:
+
+```json
+{
+  "mcpServers": {
+    "etiyawiki": {
+      // etiyawiki MCP server yapılandırması
+    }
+  }
+}
 ```
 
 ## Workflow
@@ -84,13 +122,20 @@ Uzun süreli işlemler (`/execute`, `/investigate`, `/review`) sub-agent'da çal
 
 ```
 data-engineer/
-├── .github/workflows/security.yml   # CI: truffleHog, markdown lint, shellcheck, registry validation
-├── registry.json                    # OCX registry definition
-├── install.sh                       # Single-command installer
+├── .github/workflows/security.yml       # CI: truffleHog, shellcheck, registry validation
+├── registry.json                        # OCX registry definition
+├── install.sh                           # Single-command installer (opencode + Devin)
 ├── components/
-│   ├── commands/                    # 6 core data-engineer commands
-│   ├── commands_legacy/             # Legacy commands archive
-│   └── skills/                      # SKILL.md files
+│   ├── commands/                        # 6 core opencode commands
+│   ├── devin-skills/                    # 6 Devin CLI SKILL.md files
+│   │   ├── analyze/SKILL.md
+│   │   ├── execute/SKILL.md
+│   │   ├── investigate/SKILL.md
+│   │   ├── jira/SKILL.md
+│   │   ├── repo/SKILL.md
+│   │   └── review/SKILL.md
+│   ├── commands_legacy/                 # Legacy commands archive
+│   └── skills/                          # opencode SKILL.md files (caveman, context7)
 ├── LICENSE
 └── README.md
 ```

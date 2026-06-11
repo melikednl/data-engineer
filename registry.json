@@ -104,6 +104,19 @@
         ".opencode/skills/context7/SKILL.md": "components/skills/context7/SKILL.md",
         ".opencode/skills/context7/library-registry.md": "components/skills/context7/library-registry.md"
       }
+    },
+    "devin-skills": {
+      "name": "devin-skills",
+      "description": "All 6 Devin CLI skills: analyze, execute, investigate, jira, repo, review",
+      "group": "devin-skills",
+      "files": {
+        ".devin/skills/analyze/SKILL.md": "components/devin-skills/analyze/SKILL.md",
+        ".devin/skills/execute/SKILL.md": "components/devin-skills/execute/SKILL.md",
+        ".devin/skills/investigate/SKILL.md": "components/devin-skills/investigate/SKILL.md",
+        ".devin/skills/jira/SKILL.md": "components/devin-skills/jira/SKILL.md",
+        ".devin/skills/repo/SKILL.md": "components/devin-skills/repo/SKILL.md",
+        ".devin/skills/review/SKILL.md": "components/devin-skills/review/SKILL.md"
+      }
     }
   }
 }
