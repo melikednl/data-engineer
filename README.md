@@ -9,6 +9,7 @@ Tek komut — CLI otomatik algılanır (Devin CLI varsa Devin'e, yoksa opencode'
 ```bash
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh
 ```
+Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tutulmaktadır. Takım veya şirket geneli kullanım için repository’nin ortak bir organization hesabı altına taşınması ve `install.sh` içindeki `REPO` değerinin güncellenmesi önerilir.
 
 ### opencode
 
