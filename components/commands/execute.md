@@ -1,267 +1,338 @@
 ---
-description: Full multi-agent workflow execution for Jira tasks
+description: Execute full Data Engineer workflow for Etiyawiki Jira tasks
 subtask: true
 ---
-Execute an Etiyawiki Jira task using the professional multi-agent workflow.
+Execute an Etiyawiki Jira task using the Data Engineer multi-workflow package.
 
 Use the etiyawiki MCP server to get issue {{args}}.
 
-Use the workflow rules from:
-~/codes/eltstack/AGENTS_AI.md
+Use the Data Engineer skill rules and package workflow.
 
-## Goal
+## Purpose
 
-Run the full workflow with minimum user intervention, but with explicit approval before risky actions.
+This command orchestrates the full workflow for Etiyawiki Jira tasks across Data Engineering, DWH OPS, Development, and Operations teams.
 
-This command supports:
-- development tasks
-- repository / Git / file changes
-- data investigation tasks
-- DWH / ETL / SQL analysis
-- operational follow-up tasks
-- Jira-only actions
+It supports:
 
----
+- task analysis
+- repository / Git / development work
+- data investigation
+- ETL error investigation
+- SQL / DWH / ELT analysis
+- monitoring / rerun / operational follow-up
+- Jira comments, status updates, worklog, and final review
 
-## Agent Flow
-
-### 1. Master Analyst Agent
-
-First analyze the Etiyawiki task.
-
-You must:
-- Explain the task briefly in Turkish.
-- Determine the task type.
-- Extract technical details when available:
-  - project name
-  - repository URL
-  - local repository path
-  - target branch
-  - target file / folder / change scope
-  - table
-  - column
-  - procedure / function
-  - SQL
-  - Excel / document reference
-  - database / schema / environment
-- Identify risks, assumptions, blockers, and missing information.
-- Decide the next workflow:
-  - Repository / Git / Development → Project Resolver + Repo Execution workflow
-  - Data Investigation / DWH / SQL / Customer Ticket Investigation → Data Investigation workflow
-  - Operational Follow-up / Jira-only Action → Jira Action workflow
-  - Terminal / Cancelled task → stop and ask for exceptional approval
+This command must minimize unnecessary user interaction, but it must always ask for explicit approval before risky or irreversible actions.
 
 ---
 
-### 2. Project Resolver Agent
+## High-Level Flow
 
-If the task requires repository, branch, file, code, or config changes, resolve and confirm:
+1. Analyze the Etiyawiki task.
+2. Classify the task type.
+3. Extract technical details.
+4. Decide the correct workflow:
+   - investigation workflow
+   - ETL error investigation workflow
+   - repo workflow
+   - Jira workflow
+   - manual follow-up
+5. Ask for user approval before actions.
+6. Execute only the approved workflow.
+7. Review the result.
+8. Ask before Jira worklog or status transition.
+
+---
+
+## Step 1 — Task Analysis
+
+First, analyze the Etiyawiki task.
+
+You must extract:
+
+- task summary
+- task type
+- project name
+- repository URL
+- local repository path
+- target branch
+- target file / folder / change scope
+- table
+- column
+- metric / KPI
+- procedure / function / model / script
+- ETL / ELT job name
+- scheduler / orchestration tool
+- SQL query
+- error message
+- log detail
+- Excel / document reference
+- database / schema / environment
+- customer ticket reference included in Etiyawiki
+
+Then identify:
+
+- risks
+- assumptions
+- blockers
+- missing information
+- whether repo resolution is required
+- whether DB/SQL investigation is required
+- whether Jira action is required
+
+Always explain the initial analysis in Turkish.
+
+---
+
+## Step 2 — Workflow Routing
+
+Route based on the task type.
+
+### Repository / Git / Development
+
+Use repo workflow if the task requires:
+
+- file creation
+- file update
+- code/config change
+- dbt model change
+- SQL script change
+- Python script change
+- procedure/script update
+- branch/commit/push
+
+Before repo action, confirm:
 
 - project name
 - repository URL
 - local repository path
 - target branch
-- target file, folder, or change scope
+- target file, folder, model, procedure, script, or change scope
 
-Rules:
-- Never assume a default local repository path.
-- Use a local project registry if available.
-- If local repository path is missing or uncertain, ask the user.
-- If target branch is missing or uncertain, ask the user.
-- If target file or change scope is missing or uncertain, ask the user.
-- If multiple repositories, branches, or local paths are possible, ask the user to confirm.
-- Do not continue to repo execution until project, repo, local path, branch, and change scope are confirmed.
+If any information is missing:
 
-If information is missing, ask:
+- stop repo execution
+- ask the user for the missing information
+- do not assume default paths
+- do not modify files
 
-"Bu task için repo aksiyonuna geçmeden önce eksik bilgileri netleştirmem gerekiyor. Lütfen proje adı, repo URL, local repo path, target branch ve değişiklik kapsamını paylaşır mısın?"
+### Data Investigation
+
+Use investigation workflow if the task includes:
+
+- data mismatch
+- missing data
+- duplicate data
+- NULL value
+- unexpected value
+- wrong calculation
+- KPI / metric issue
+- customer ticket investigation
+- SQL / DB analysis
+- DWH / ETL / ELT analysis
+- source vs target comparison
+- lineage investigation
+
+### ETL Error Investigation
+
+Use ETL error investigation workflow if the task includes:
+
+- failed ETL
+- failed ELT
+- failed dbt model
+- failed procedure
+- failed SQL script
+- failed Python script
+- scheduler / cron / orchestration failure
+- monitoring alert
+- API / Mongo / downstream load issue
+- row count mismatch
+- source file not received
+- schema change
+- invalid identifier
+- conversion error
+- array size / memory error
+- disk / permission / timeout issue
+
+### Jira-only Action
+
+Use Jira workflow if the task only requires:
+
+- comment
+- status transition
+- worklog
+- closure note
+- operational follow-up note
 
 ---
 
-### 3. User Approval Before Execution
+## Step 3 — User Approval Before Action
 
-After analysis and project/repo resolution, summarize:
+Before any action, summarize:
 
-- task type
-- confirmed project/repo information
-- planned action
+- detected task type
+- planned workflow
+- confirmed project/repo information, if relevant
+- planned Jira action, if relevant
 - risks
-- next workflow
+- missing information
+- what will not be done automatically
 
 Then ask:
 
 "Bu işlemleri uygulamamı ister misin? (yes/no)"
 
-Do not modify files, add Jira comments, transition status, commit, or push before this approval.
+Do not perform any of these before approval:
+
+- modify files
+- run Git checkout
+- commit
+- push
+- add Jira comment
+- transition Jira status
+- add worklog
+- rerun ETL
+- update control tables
+- execute DB write SQL
 
 ---
 
-### 4. Jira Action Agent — Start Work
+## Step 4A — Investigation Execution
 
-Only if the user says yes:
+For data investigation or ETL error investigation:
 
-- Add a Jira comment:
-  "Çalışma başlatıldı. İlk analiz tamamlandı ve uygun agent akışına geçiliyor."
+1. Use Etiyawiki task content and user-provided context.
+2. Explain the problem in Turkish.
+3. Identify the problematic object or failed component:
+   - table
+   - field / column
+   - metric / KPI
+   - job
+   - procedure
+   - model
+   - script
+   - source file
+   - API / Mongo object
+4. Identify the likely layer:
+   - source
+   - file transfer
+   - BSS
+   - DCE
+   - i2i
+   - STG
+   - DWH
+   - SEM, only when applicable
+   - OPR / Monitoring
+   - API / Mongo / downstream
+   - scheduler / orchestration
+   - infrastructure
+   - Unknown
+5. If repository/local path is confirmed, inspect code for:
+   - target table
+   - problematic column
+   - metric / KPI
+   - model / procedure / script
+   - failed job
+   - error keyword
+   - upstream/downstream dependencies
+6. If repository/local path is missing and code inspection is needed:
+   - ask the user for the local repository path
+   - continue only with task-content-level analysis if the user does not provide it
+7. Generate safe diagnostic SQL only.
+8. Clearly mark unverified causes as hypotheses.
+9. Suggest next actions and responsible team.
 
-- Transition the issue to "In Progress" if:
-  - it is not already there
-  - the transition is available
-  - the user has permission
+After investigation, ask:
 
-If Jira action fails due to assignment or permission, explain the issue and continue only if the user approves the remaining local actions.
+"Bu inceleme sonucunu Jira'ya log olarak eklememi ister misin? (yes/no)"
+
+Only add Jira comment if the user says yes.
 
 ---
 
-### 5A. Repo Execution Agent
+## Step 4B — Repository Execution
 
-Use this path only if the task is Repository / Git / Development and repo resolution is complete.
+For repository or code changes:
 
-Actions:
-- Go to the confirmed local repository path.
-- Do not use any fallback local path.
-- Verify the local repo exists.
-- Show current branch.
-- Fetch target branch if needed.
-- Checkout target branch only after approval.
-- Never touch protected branches:
-  - main
-  - master
-  - prod
-  - production
-  - preprod
-  - release/*
-- Apply only the required local change.
-- Do not modify unrelated files.
-- Show changed files and concise diff summary.
-- Stop if more files changed than expected.
-
-Then ask:
+1. Verify the confirmed local repository path.
+2. Show current branch.
+3. Confirm target branch.
+4. Do not touch protected branches:
+   - main
+   - master
+   - prod
+   - production
+   - preprod
+   - release/*
+5. Checkout target branch only after approval.
+6. Apply only the approved file/code/config change.
+7. Do not modify unrelated files.
+8. Show changed files.
+9. Show concise diff summary.
+10. Stop if unexpected files changed.
+11. Ask:
 
 "Değişiklikleri commit ve push yapmamı ister misin? (yes/no)"
 
 If user says yes:
-- Run `git add` only for relevant changed files.
-- Do not use `git add .` unless explicitly approved and justified.
-- Commit with a message containing the Jira ID.
-- Push only to the confirmed target branch.
-- Add a Jira execution log comment summarizing:
-  - changed files
-  - commit message
-  - push target branch
-  - approvals received
+
+- run `git add` only for relevant changed files
+- do not use `git add .` unless explicitly approved and justified
+- commit with a message containing the Jira ID
+- push only to the confirmed target branch
+- add Jira execution log only after approval
 
 ---
 
-### 5B. Data Investigation Agent
+## Step 4C — Jira Action Execution
 
-### 5B. Data Investigation Agent
+For Jira-only or follow-up actions:
 
-Use this path if the task is Data Investigation, DWH/ETL Analysis, SQL/DB Analysis, Excel/Document Analysis, Customer Ticket Investigation, Monitoring/Rerun issue, or operational data problem.
+1. Read current issue status.
+2. Check available transitions before changing status.
+3. Prepare the comment/status/worklog action.
+4. Ask for approval.
+5. Execute only approved Jira actions.
 
-Actions:
-- Analyze the issue using only Etiyawiki task content and provided context.
-- Explain the customer/data problem in Turkish.
-- Identify the problematic target object:
-  - table
-  - view
-  - report
-  - KPI
-  - metric
-  - column / field
-- Identify the likely data layer:
-  - BSS
-  - DCE
-  - i2i
-  - STG
-  - DWH
-  - OPR / Monitoring
-  - Unknown
-- Extract relevant technical clues:
-  - tables
-  - columns
-  - procedures / functions
-  - SQL
-  - Excel / document references
-  - schemas
-  - environments
-  - logs
-  - ETL / ELT job references
-- If repository information and local path are confirmed, inspect local procedure/model/script files to understand:
-  - where the problematic field is selected
-  - where it is calculated
-  - where it is filtered
-  - where it is joined
-  - where it is mapped
-  - which upstream tables feed it
-- If repository/local path is not confirmed, do not assume a repo path. Ask the user for the relevant repo/local path if procedure/model inspection is needed.
-- Identify whether the issue may be caused by:
-  - filter condition
-  - join condition
-  - calculation logic
-  - source mapping issue
-  - source data issue
-  - incremental/load date filter
-  - current/history logic
-  - duplicate/null handling
-  - status/date condition
-- Generate Snowflake-compatible validation SQL for each relevant layer.
-- Clearly list missing information.
-- Mark root cause as hypothesis unless evidence exists.
-- Do not connect to the database directly.
-- Do not run DB write operations.
+Do not close the issue automatically.
 
-Then ask:
+If the issue is Cancelled, Closed, Resolved, or Done:
 
-"Bu inceleme sonucunu Jira'ya log olarak eklememi ister misin? (yes/no)"
-
-If user says yes:
-- Add a concise Jira investigation log comment including:
-  - problem summary
-  - suspected layer
-  - key hypotheses
-  - suggested validation SQL summary
-  - missing information
+- stop
+- ask whether exceptional action is required
 
 ---
 
-### 5C. Jira Action Agent — Operational Follow-up
+## Step 5 — Review
 
-Use this path if the task only requires Jira-side action.
+After the approved workflow:
 
-Actions may include:
-- add comment
-- transition status
-- add worklog
-- prepare closure note
+- verify what was actually done
+- verify changed files, if repo work was done
+- verify Jira comments/logs, if Jira action was done
+- verify investigation result is evidence-based
+- verify missing information and assumptions are clearly stated
+- prevent false completion claims
 
-Always ask for explicit approval before action.
+Then decide whether the task is ready for:
 
----
+- no further action
+- manual follow-up
+- Test
+- Resolved
 
-### 6. Review Agent
-
-After repository action, data investigation, or Jira action:
-
-- Verify whether the requested action was actually performed.
-- Verify Jira comments/logs.
-- Verify repo branch/file changes when relevant.
-- Prevent false completion claims.
-- Decide whether the issue is ready for:
-  - no action
-  - manual follow-up
-  - Test
-  - Resolved
-
-Before transitioning to Test or Resolved, ask:
+Before moving to Test or Resolved, ask:
 
 "Bu task için kaç saat worklog girmemi istersin? Örn: 30m, 1h, 2h. Eğer log girmek istemiyorsan 'skip' yazabilirsin."
 
 If user provides a duration:
-- Add Jira worklog using that duration.
-- Add a short Jira comment saying worklog was added.
 
-If user says skip:
-- Do not add worklog.
+- add Jira worklog using that duration
+- add a short Jira comment saying worklog was added
+
+If user says `skip`:
+
+- do not add worklog
 
 Then ask:
 
@@ -273,17 +344,67 @@ Only transition if user explicitly approves.
 
 ## Strict Safety Rules
 
-- Follow `AGENTS_AI.md` strictly.
+- Follow the Data Engineer skill rules and package workflow strictly.
 - Always respond in Turkish.
-- Keep output concise.
-- Do not repeat analysis.
+- Keep output concise and structured.
 - Do not include internal reasoning or debug logs.
 - Never assume a default repository path.
+- Never assume dbt exists or does not exist before inspecting project context.
+- Never assume SEM exists for every project.
 - Never modify files without approval.
-- Never run Git checkout without confirmed repo/path/branch.
+- Never run Git checkout without confirmed repo/path/branch and approval.
 - Never commit or push without approval.
-- Never run DB write operations.
-- Never force push.
+- Never use force push.
 - Never touch protected branches.
+- Never execute SQL automatically.
+- Never run DB write operations.
+- Never rerun ETL automatically.
+- Never update control tables automatically.
+- Never kill jobs or restart services automatically.
+- Never change cron/scheduler automatically.
+- Never add Jira comments without approval.
+- Never transition Jira status without approval.
+- Never add worklog without explicit duration.
 - Never close the issue automatically.
 - Never claim completion unless execution was actually done and verified.
+
+---
+
+## Output Format
+
+Use the most relevant output format based on the selected workflow.
+
+For initial execution summary:
+
+1. Görev Özeti
+2. Görev Tipi
+3. Seçilen Workflow
+4. Teknik Bilgiler
+5. Proje / Repo Durumu
+6. Riskler
+7. Eksik Bilgiler
+8. Planlanan Aksiyon
+9. Onay Sorusu
+
+For investigation result, follow the Data Engineer investigation output format.
+
+For ETL error result, follow the Data Engineer ETL error output format.
+
+For repo execution result:
+
+1. Repo Bilgisi
+2. Branch Bilgisi
+3. Yapılan Değişiklikler
+4. Değişen Dosyalar
+5. Diff Özeti
+6. Risk / Uyarı
+7. Commit & Push Onay Sorusu
+
+For final review:
+
+1. Yapılan İşlem
+2. Doğrulama Sonucu
+3. Eksik / Riskli Noktalar
+4. Jira Log Durumu
+5. Worklog Durumu
+6. Sonraki Statü Önerisi

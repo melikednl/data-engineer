@@ -115,7 +115,7 @@ install_opencode() {
   done
 
   echo -e "${CYAN}Downloading skills...${NC}"
-  for skill_file in caveman/SKILL.md context7/SKILL.md context7/library-registry.md; do
+  for skill_file in data-engineer/SKILL.md caveman/SKILL.md context7/SKILL.md context7/library-registry.md; do
     mkdir -p "$SKILLS_DIR/$(dirname "$skill_file")"
     curl -sfL "$BASE_URL/skills/$skill_file" -o "$SKILLS_DIR/$skill_file" \
       && echo "  → $skill_file" \
@@ -151,7 +151,7 @@ install_devin() {
   done
 
   echo -e "${CYAN}Downloading skills...${NC}"
-  for skill in caveman context7; do
+  for skill in data-engineer caveman context7; do
     dest="$SKILLS_DIR/$skill"
     mkdir -p "$dest"
     if [ "$skill" = "context7" ]; then

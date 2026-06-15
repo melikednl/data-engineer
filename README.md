@@ -50,10 +50,11 @@ curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/instal
 | `/repo` | — | Proje/repo çözümle + kod değişikliklerini uygula |
 | `/review` | ✅ | Code değişikliklerini review et |
 
-## Skills (2)
+## Skills (3)
 
 | Skill | Description |
 |-------|-------------|
+| `data-engineer` | Data Engineering, DWH OPS, ETL hata analizi, Jira task analizi, repo güvenliği ve veri investigation metodolojisi |
 | `caveman` | Ultra-compressed caveman communication mode |
 | `context7` | Güncel kütüphane dökümantasyonu (Context7 API) |
 
@@ -91,7 +92,7 @@ Ardından:
 /repo PROJ-654
 ```
 
-Workflow'lar `/analyze`, `/execute` vb. ile çağrılır. Skill'ler (`caveman`, `context7`) otomatik yüklenir.
+Workflow'lar `/analyze`, `/execute` vb. ile çağrılır. Skill'ler (`data-engineer`, `caveman`, `context7`) otomatik yüklenir.
 
 MCP sunucularını `.devin/config.json` dosyasında yapılandırın:
 
@@ -137,7 +138,7 @@ data-engineer/
 │   │   ├── repo/SKILL.md
 │   │   └── review/SKILL.md
 │   ├── commands_legacy/                 # Legacy commands archive
-│   └── skills/                          # opencode SKILL.md files (caveman, context7)
+│   └── skills/                          # opencode SKILL.md files (data-engineer, caveman, context7)
 ├── LICENSE
 └── README.md
 ```
