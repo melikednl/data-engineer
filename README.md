@@ -7,7 +7,7 @@ Etiyawiki Jira işlerini çözmek, analiz yapmak ve problemleri gidermek için o
 Tek komut — CLI otomatik algılanır (Devin CLI varsa Devin'e, yoksa opencode'a kurar):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash
 ```
 Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tutulmaktadır. Takım veya şirket geneli kullanım için repository’nin ortak bir organization hesabı altına taşınması ve `install.sh` içindeki `REPO` değerinin güncellenmesi önerilir.
 
@@ -15,16 +15,16 @@ Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tu
 
 ```bash
 # Global (tüm projelerde)
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --opencode --global
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --global
 
 # Proje bazlı
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --opencode --project
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --project
 ```
 
 #### OCX ile (önerilen, update desteği)
 
 ```bash
-curl -fsSL https://ocx.kdco.dev/install.sh | sh
+curl -fsSL https://ocx.kdco.dev/install.sh | bash
 ocx registry add data-engineer https://raw.githubusercontent.com/melikednl/data-engineer/main/registry.json
 ocx add data-engineer/commands
 ocx add data-engineer/skills
@@ -34,10 +34,10 @@ ocx add data-engineer/skills
 
 ```bash
 # Global — commands → ~/.codeium/windsurf/global_workflows/, skills → ~/.codeium/windsurf/skills/
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --global
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --global
 
 # Proje bazlı (.devin/global_workflows/ + .devin/skills/)
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | sh -s -- --devin --project
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --project
 ```
 
 ## Commands / Skills (6)
