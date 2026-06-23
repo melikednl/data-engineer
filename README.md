@@ -40,7 +40,7 @@ curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/instal
 curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --project
 ```
 
-## Commands / Skills (6)
+## Commands / Skills (7)
 
 | Command | Subagent | Description |
 |---------|----------|-------------|
@@ -50,6 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/instal
 | `/jira` | — | Tek elden Jira işlemleri: action + review + closure |
 | `/repo` | — | Proje/repo çözümle + kod değişikliklerini uygula |
 | `/review` | ✅ | Code değişikliklerini review et |
+| `/dbt-test-monitor` | — | dbt test ve freshness warn/fail sonuçlarını analiz et |
 
 ## Skills (3)
 
@@ -75,6 +76,8 @@ Ardından TUI'de:
 /investigate PROJ-456
 /jira PROJ-321
 /repo PROJ-654
+/dbt-test-monitor
+/dbt-test-monitor --last-7d --severity fail
 ```
 
 ### Windsurf / Devin CLI
@@ -91,6 +94,8 @@ Ardından:
 /investigate PROJ-456
 /jira PROJ-321
 /repo PROJ-654
+/dbt-test-monitor
+/dbt-test-monitor --last-7d --severity fail
 ```
 
 Workflow'lar `/analyze`, `/execute` vb. ile çağrılır. Skill'ler (`data-engineer`, `caveman`, `context7`) otomatik yüklenir.
@@ -116,6 +121,7 @@ MCP sunucularını `.devin/config.json` dosyasında yapılandırın:
   ├─ tümünü birden  → /execute     → Otomatik full workflow
   └─ tamamlandı     → /jira        → Log, transition, worklog, closure
 /review              → Code kalite kontrol
+/dbt-test-monitor    → dbt test/freshness warn/fail analizi ve raporlama
 ```
 
 ## Sub-agent (subtask)
@@ -130,8 +136,8 @@ data-engineer/
 ├── registry.json                        # OCX registry definition
 ├── install.sh                           # Single-command installer (opencode + Devin)
 ├── components/
-│   ├── commands/                        # 6 core opencode commands
-│   ├── devin-workflows/                 # 6 Devin CLI workflow SKILL.md files
+│   ├── commands/                        # 7 core opencode commands
+│   ├── devin-workflows/                 # 6 Devin CLI workflow SKILL.md files (dbt-test-monitor yalnızca opencode command'idir)
 │   │   ├── analyze/SKILL.md
 │   │   ├── execute/SKILL.md
 │   │   ├── investigate/SKILL.md

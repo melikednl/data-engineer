@@ -4,7 +4,7 @@
   "components": {
     "commands": {
       "name": "commands",
-      "description": "All 6 data-engineer commands: analyze, execute, investigate, jira, repo, review",
+      "description": "All 7 data-engineer commands: analyze, execute, investigate, jira, repo, review, dbt-test-monitor",
       "group": "commands",
       "files": {
         ".opencode/commands/analyze.md": "components/commands/analyze.md",
@@ -12,7 +12,16 @@
         ".opencode/commands/investigate.md": "components/commands/investigate.md",
         ".opencode/commands/jira.md": "components/commands/jira.md",
         ".opencode/commands/repo.md": "components/commands/repo.md",
-        ".opencode/commands/review.md": "components/commands/review.md"
+        ".opencode/commands/review.md": "components/commands/review.md",
+        ".opencode/commands/dbt-test-monitor.md": "components/commands/dbt-test-monitor.md"
+      }
+    },
+    "commands-dbt-test-monitor": {
+      "name": "commands-dbt-test-monitor",
+      "description": "dbt test ve freshness warn/fail sonuçlarını analiz eden monitoring agent",
+      "group": "commands",
+      "files": {
+        ".opencode/commands/dbt-test-monitor.md": "components/commands/dbt-test-monitor.md"
       }
     },
     "commands-analyze": {
