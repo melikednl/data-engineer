@@ -108,7 +108,7 @@ install_opencode() {
   mkdir -p "$COMMANDS_DIR" "$SKILLS_DIR"
 
   echo -e "${CYAN}Downloading commands...${NC}"
-  for cmd in analyze execute investigate jira repo review; do
+  for cmd in analyze execute investigate jira repo review dbt-test-monitor; do
     curl -sfL "$BASE_URL/commands/$cmd.md" -o "$COMMANDS_DIR/$cmd.md" \
       && echo "  → $cmd.md" \
       || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
@@ -125,7 +125,7 @@ install_opencode() {
   echo -e "${GREEN}✅ Installed for opencode!${NC}"
   if [ "$TARGET" = "project" ]; then
     echo -e "${YELLOW}   Start: opencode${NC}"
-    echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review${NC}"
+    echo -e "${YELLOW}   Commands: /analyze /execute /investigate /jira /repo /review /dbt-test-monitor${NC}"
   fi
 }
 
