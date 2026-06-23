@@ -1,162 +1,750 @@
-# Data Engineer — Opencode & Devin CLI Pack
+# Data Engineer — OpenCode & Windsurf/Devin CLI Pack
 
-Etiyawiki Jira işlerini çözmek, analiz yapmak ve problemleri gidermek için opencode ve Devin CLI command/skill paketi.
+Etiyawiki/Jira task analizi, DWH/ETL problem inceleme, repo aksiyonları, dbt test/freshness monitoring ve Jira süreçleri için hazırlanmış Data Engineering AI workflow paketidir.
 
-## Kurulum
+Bu paket şu araçlarla kullanılabilir:
 
-Tek komut — CLI otomatik algılanır (Devin CLI varsa Devin'e, yoksa opencode'a kurar):
+* OpenCode
+* Windsurf / Devin CLI
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash
-```
-Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tutulmaktadır. Takım veya şirket geneli kullanım için repository’nin ortak bir organization hesabı altına taşınması ve `install.sh` içindeki `REPO` değerinin güncellenmesi önerilir.
+> Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tutulmaktadır. Takım veya şirket geneli kullanım için repository’nin ortak bir organization hesabı altına taşınması ve `install.sh` içindeki `REPO` değerinin güncellenmesi önerilir.
 
-### opencode
+---
 
-```bash
-# Global (tüm projelerde)
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --global
+## 1. Fresh Setup — Sıfırdan Kurulum
 
-# Proje bazlı
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --project
-```
+Bu bölüm, bilgisayarında henüz WSL/Ubuntu, Git, OpenCode veya proje repoları olmayan kullanıcılar içindir.
 
-#### OCX ile (önerilen, update desteği)
+---
 
-```bash
-curl -fsSL https://ocx.kdco.dev/install.sh | bash
-ocx registry add data-engineer https://raw.githubusercontent.com/melikednl/data-engineer/main/registry.json
-ocx add data-engineer/commands
-ocx add data-engineer/skills
+## 1.1 WSL / Ubuntu Kurulumu
+
+Windows PowerShell’i **Run as Administrator** olarak açın ve çalıştırın:
+
+```powershell
+wsl --install -d Ubuntu
 ```
 
-### Windsurf / Devin CLI
+Kurulum sonrası bilgisayarı yeniden başlatmanız gerekebilir.
+
+Ubuntu ilk açıldığında sizden Linux kullanıcı adı ve şifre ister.
+
+Kurulum kontrolü:
 
 ```bash
-# Global — commands → ~/.codeium/windsurf/global_workflows/, skills → ~/.codeium/windsurf/skills/
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --global
-
-# Proje bazlı (.devin/global_workflows/ + .devin/skills/)
-curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --project
+wsl --status
 ```
 
-## Commands / Skills (7)
+Ubuntu terminali içinde:
 
-| Command | Subagent | Description |
-|---------|----------|-------------|
-| `/analyze` | — | Jira task'ini analiz et, sınıflandır, detayları çıkar |
-| `/execute` | ✅ | Çoklu-agent workflow ile Jira task'ini uçtan uca çöz |
-| `/investigate` | ✅ | DWH/ETL/SQL veri inceleme ve kök neden analizi |
-| `/jira` | — | Tek elden Jira işlemleri: action + review + closure |
-| `/repo` | — | Proje/repo çözümle + kod değişikliklerini uygula |
-| `/review` | ✅ | Code değişikliklerini review et |
-| `/dbt-test-monitor` | — | dbt test ve freshness warn/fail sonuçlarını analiz et |
+```bash
+whoami
+pwd
+```
 
-## Skills (3)
+---
 
-| Skill | Description |
-|-------|-------------|
-| `data-engineer` | Data Engineering, DWH OPS, ETL hata analizi, Jira task analizi, repo güvenliği ve veri investigation metodolojisi |
-| `caveman` | Ultra-compressed caveman communication mode |
-| `context7` | Güncel kütüphane dökümantasyonu (Context7 API) |
+## 1.2 Ubuntu İçinde Temel Araçları Kurma
 
-## Kullanım
+Ubuntu terminalinde:
 
-### opencode
+```bash
+sudo apt update
+sudo apt install -y git curl unzip ca-certificates build-essential
+```
+
+Git kontrolü:
+
+```bash
+git --version
+```
+
+Git kullanıcı bilgisi:
+
+```bash
+git config --global user.name "Ad Soyad"
+git config --global user.email "ad.soyad@etiya.com"
+```
+
+Kontrol:
+
+```bash
+git config --global --list
+```
+
+---
+
+## 1.3 VS Code / WSL Kullanımı
+
+Windows tarafında VS Code kurulu olmalıdır.
+
+VS Code extension olarak şunu kurun:
+
+```text
+WSL - Microsoft
+```
+
+Ubuntu terminalinden VS Code açma testi:
+
+```bash
+code --version
+```
+
+Proje klasörlerini sonradan şöyle açabilirsiniz:
+
+```bash
+code ~/codes
+```
+
+---
+
+## 1.4 Bitbucket SSH Erişimi
+
+Önce SSH key var mı kontrol edin:
+
+```bash
+ls -la ~/.ssh
+```
+
+Eğer `id_ed25519.pub` yoksa yeni SSH key oluşturun:
+
+```bash
+ssh-keygen -t ed25519 -C "ad.soyad@etiya.com"
+```
+
+Sorular geldiğinde Enter ile geçebilirsiniz.
+
+Public key’i görüntüleyin:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Çıkan değeri komple kopyalayın.
+
+Bitbucket üzerinde:
+
+```text
+Personal settings
+→ SSH keys
+→ Add key
+```
+
+alanına ekleyin.
+
+SSH bağlantı testi:
+
+```bash
+ssh -T git@bitbucket2.etiya.com
+```
+
+İlk bağlantıda şu soru gelebilir:
+
+```text
+Are you sure you want to continue connecting?
+```
+
+`yes` yazıp Enter’a basın.
+
+Başarılı bağlantıdan sonra repo clone işlemlerine geçebilirsiniz.
+
+> Eğer `Permission denied (publickey)` hatası alınırsa SSH key Bitbucket’a eklenmemiştir veya kullanıcının repo yetkisi yoktur.
+
+---
+
+## 1.5 Proje Klasörlerini Oluşturma
+
+Ubuntu terminalinde:
+
+```bash
+mkdir -p ~/codes
+cd ~/codes
+```
+
+Önerilen klasör yapısı:
+
+```text
+~/codes/
+  darwin/
+  fizz/
+  maya/
+  data-engineer/
+```
+
+---
+
+## 1.6 Bitbucket Reposlarını Clone Etme
+
+Darwin:
+
+```bash
+cd ~/codes
+git clone ssh://git@bitbucket2.etiya.com:7999/dwh_darwin/eltstack.git darwin
+```
+
+Fizz:
+
+```bash
+cd ~/codes
+git clone ssh://git@bitbucket2.etiya.com:7999/dwh_fizz/eltstack.git fizz
+```
+
+Maya için ilgili repo URL’si ile aynı mantık kullanılabilir:
+
+```bash
+cd ~/codes
+git clone <MAYA_REPO_SSH_URL> maya
+```
+
+Kontrol:
+
+```bash
+ls ~/codes
+```
+
+Beklenen örnek:
+
+```text
+darwin
+fizz
+maya
+```
+
+VS Code’da tüm klasörü açmak için:
+
+```bash
+code ~/codes
+```
+
+---
+
+## 2. OpenCode Kurulumu
+
+Ubuntu terminalinde:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Kurulum sonrası terminali kapatıp açın veya:
+
+```bash
+source ~/.bashrc
+```
+
+Kontrol:
+
+```bash
+opencode --version
+```
+
+OpenCode’u başlatmak için:
 
 ```bash
 opencode
 ```
 
-Ardından TUI'de:
+---
 
-```
-/analyze PROJ-123
-/execute PROJ-789
-/investigate PROJ-456
-/jira PROJ-321
-/repo PROJ-654
-/dbt-test-monitor
-/dbt-test-monitor --last-7d --severity fail
-```
+## 3. Data Engineer Pack Kurulumu
 
-### Windsurf / Devin CLI
+### 3.1 Tek Komut — Otomatik Algılama
+
+CLI otomatik algılanır. Devin CLI varsa Devin/Windsurf tarafına, yoksa OpenCode tarafına kurar:
 
 ```bash
-devin
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash
 ```
 
-Ardından:
+---
 
-```
-/analyze PROJ-123
-/execute PROJ-789
-/investigate PROJ-456
-/jira PROJ-321
-/repo PROJ-654
-/dbt-test-monitor
-/dbt-test-monitor --last-7d --severity fail
+### 3.2 OpenCode İçin Kurulum
+
+Global kurulum önerilir. Böylece tüm projelerde kullanılabilir:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --global
 ```
 
-Workflow'lar `/analyze`, `/execute` vb. ile çağrılır. Skill'ler (`data-engineer`, `caveman`, `context7`) otomatik yüklenir.
+Global kurulum path’leri:
 
-MCP sunucularını `.devin/config.json` dosyasında yapılandırın:
+```text
+~/.config/opencode/commands/
+~/.config/opencode/skills/
+```
+
+Proje bazlı kurulum:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --opencode --project
+```
+
+Kurulum kontrolü:
+
+```bash
+find ~/.config/opencode -maxdepth 4 -type f | sort | grep -E "analyze|investigate|execute|repo|jira|review|dbt-test-monitor|data-engineer"
+```
+
+---
+
+### 3.3 Windsurf / Devin CLI İçin Kurulum
+
+Global kurulum:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --global
+```
+
+Global kurulum path’leri:
+
+```text
+~/.codeium/windsurf/global_workflows/
+~/.codeium/windsurf/skills/
+```
+
+Proje bazlı kurulum:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/melikednl/data-engineer/main/install.sh | bash -s -- --devin --project
+```
+
+Kurulum kontrolü:
+
+```bash
+find ~/.codeium/windsurf/global_workflows -maxdepth 1 -type f | sort
+```
+
+Beklenen workflow dosyaları:
+
+```text
+analyze.md
+execute.md
+investigate.md
+jira.md
+repo.md
+review.md
+dbt-test-monitor.md
+```
+
+---
+
+## 4. Atlassian / Etiyawiki MCP Bağlantısı
+
+Jira task içeriklerinin AI tarafından okunabilmesi için Atlassian/Etiyawiki MCP bağlantısı yapılmalıdır.
+
+---
+
+### 4.1 OpenCode MCP Config Oluşturma
+
+Önce config klasörü oluşturulur:
+
+```bash
+mkdir -p ~/.config/opencode
+```
+
+Bash kullanıyorsanız:
+
+```bash
+cat > ~/.config/opencode/opencode.json <<'EOF'
+{
+  "mcp": {
+    "etiyawiki": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    }
+  }
+}
+EOF
+```
+
+Fish shell kullanıyorsanız:
+
+```fish
+printf '%s\n' \
+'{' \
+'  "mcp": {' \
+'    "etiyawiki": {' \
+'      "type": "remote",' \
+'      "url": "https://mcp.atlassian.com/v1/mcp"' \
+'    }' \
+'  }' \
+'}' > ~/.config/opencode/opencode.json
+```
+
+Kontrol:
+
+```bash
+cat ~/.config/opencode/opencode.json
+```
+
+Beklenen çıktı:
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "etiyawiki": {
-      // etiyawiki MCP server yapılandırması
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp"
     }
   }
 }
 ```
 
-## Workflow
+---
 
-```
-/analyze PROJ-123    → Task'i analiz et. Türüne göre yönlendir:
-  ├─ repo işi varsa → /repo        → Branch aç, değişiklik yap, commit
-  ├─ veri sorunu    → /investigate → Kök neden analizi, SQL üret
-  ├─ tümünü birden  → /execute     → Otomatik full workflow
-  └─ tamamlandı     → /jira        → Log, transition, worklog, closure
-/review              → Code kalite kontrol
-/dbt-test-monitor    → dbt test/freshness warn/fail analizi ve raporlama
+### 4.2 MCP OAuth Authentication
+
+Auth başlatılır:
+
+```bash
+opencode mcp auth etiyawiki
 ```
 
-## Sub-agent (subtask)
+Terminal size bir URL verir.
 
-Uzun süreli işlemler (`/execute`, `/investigate`, `/review`) sub-agent'da çalışır. Ana kontekst şişmez, her işlem temiz ortamda yürütülür.
+Yapılacaklar:
 
-## Proje Yapısı
+1. URL’yi browser’da açın.
+2. Atlassian hesabınızla giriş yapın.
+3. Allow / İzin ver seçeneği ile devam edin.
+4. Browser callback sayfasında hata görürseniz bu normal olabilir.
+5. Browser adres çubuğundaki callback URL’yi komple kopyalayın.
+6. İlk terminalde `opencode mcp auth etiyawiki` komutu açık kalmalıdır.
+7. İkinci bir terminal açın.
+8. Callback URL’yi curl ile çağırın:
 
+```bash
+curl "CALLBACK_URL"
 ```
+
+Örnek:
+
+```bash
+curl "http://127.0.0.1:19876/mcp/oauth/callback?code=xxxxx&state=yyyyy"
+```
+
+Önemli notlar:
+
+```text
+- İlk terminalde auth komutu açık kalmalıdır.
+- Callback URL browser adres çubuğundan kopyalanmalıdır.
+- URL tek satır olmalıdır.
+- URL çift tırnak içinde çalıştırılmalıdır.
+```
+
+Eğer auth komutu kapanırsa callback server kapanır ve şu hata alınır:
+
+```text
+curl: (7) Failed to connect to 127.0.0.1 port XXXXX
+```
+
+Bu durumda auth komutu tekrar başlatılmalı ve callback işlemi auth açıkken yapılmalıdır.
+
+MCP bağlantı kontrolü:
+
+```bash
+opencode mcp list
+```
+
+---
+
+## 5. İlk Kullanım Testi
+
+Darwin için:
+
+```bash
+cd ~/codes/darwin
+opencode
+```
+
+OpenCode içinde:
+
+```text
+/analyze DWHOPRS-123
+```
+
+Gerçek bir Jira task numarası ile test edin.
+
+Task içeriği okunup Türkçe özetleniyorsa MCP ve command kurulumu başarılıdır.
+
+---
+
+## 6. Commands / Skills
+
+## Commands
+
+| Command             | Açıklama                                                              |
+| ------------------- | --------------------------------------------------------------------- |
+| `/analyze`          | Jira task’ını analiz eder, sınıflandırır ve sonraki workflow’u önerir |
+| `/investigate`      | DWH/ETL/SQL veri inceleme ve kök neden analizi yapar                  |
+| `/execute`          | Çoklu-agent workflow ile Jira task’ını uçtan uca yönetir              |
+| `/repo`             | Repo/path/branch çözümleme ve kod değişikliği workflow’unu yönetir    |
+| `/jira`             | Jira comment, worklog, status ve closure işlemleri için kullanılır    |
+| `/review`           | Yapılan işin final kontrolünü yapar                                   |
+| `/dbt-test-monitor` | dbt test ve freshness warn/fail sonuçlarını analiz eder               |
+
+---
+
+## Skills
+
+| Skill           | Açıklama                                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `data-engineer` | Data Engineering, DWH OPS, ETL hata analizi, Jira task analizi, repo güvenliği ve veri investigation metodolojisi |
+| `caveman`       | Ultra-compressed caveman communication mode                                                                       |
+| `context7`      | Güncel kütüphane dökümantasyonu için Context7 entegrasyonu                                                        |
+
+---
+
+## 7. Kullanım Örnekleri
+
+### Jira Task Analizi
+
+```text
+/analyze DWHOPRS-123
+```
+
+### Data / ETL Problem İnceleme
+
+```text
+/investigate DWHOPRS-123
+```
+
+### Kod Değişikliği Gereken İşler
+
+```text
+/repo DWHOPRS-123
+```
+
+### Jira Execution Log / Worklog / Status
+
+```text
+/jira DWHOPRS-123
+```
+
+### Final Kontrol
+
+```text
+/review DWHOPRS-123
+```
+
+### Uçtan Uca Workflow
+
+```text
+/execute DWHOPRS-123
+```
+
+### dbt Test / Freshness Monitoring
+
+```text
+/dbt-test-monitor
+/dbt-test-monitor --last-24h
+/dbt-test-monitor --last-7d --severity fail
+/dbt-test-monitor --table dwf_sales
+```
+
+---
+
+## 8. Önerilen Workflow
+
+Genel Jira task akışı:
+
+```text
+/analyze TASK-ID
+    ↓
+/investigate TASK-ID
+    ↓
+/repo TASK-ID          → kod değişikliği gerekiyorsa
+    ↓
+/review TASK-ID        → final kontrol
+    ↓
+/jira TASK-ID          → execution log / worklog / status
+```
+
+dbt test/freshness monitoring akışı:
+
+```text
+/dbt-test-monitor
+    ↓
+warn/fail sonuçlarını sınıflandır
+    ↓
+freshness ihlallerini kritik işaretle
+    ↓
+güvenli SELECT kontrolleri öner
+    ↓
+Jira task/comment taslağı üret
+```
+
+---
+
+## 9. Güvenlik Kuralları
+
+Bu paket aşağıdaki güvenlik kurallarına göre tasarlanmıştır:
+
+```text
+- Otomatik Jira task açmaz.
+- Otomatik Jira status değiştirmez.
+- Otomatik worklog girmez.
+- Otomatik ETL rerun yapmaz.
+- Otomatik dbt run/test çalıştırmaz.
+- Jenkins/Dagster/cron/schedule değiştirmez.
+- DB write işlemi yapmaz.
+- INSERT/UPDATE/DELETE/MERGE/TRUNCATE/DROP işlemleri önermez.
+- Sadece güvenli SELECT SQL kontrolleri önerir.
+- Kullanıcı onayı olmadan repo değişikliği, commit veya push yapmamalıdır.
+- Root cause kanıtlanmamışsa hipotez olarak ifade edilir.
+```
+
+---
+
+## 10. Proje Reposunu Güncelleme
+
+Bitbucket reposu güncellendikçe lokal repo güncellenmelidir.
+
+Örnek:
+
+```bash
+cd ~/codes/darwin
+git pull
+```
+
+Fizz:
+
+```bash
+cd ~/codes/fizz
+git pull
+```
+
+Eğer şu hata alınırsa:
+
+```text
+fatal: not a git repository
+```
+
+ilgili klasör gerçek git repo değildir. Klasör silinip yeniden clone edilmelidir.
+
+---
+
+## 11. Sorun Giderme
+
+### Permission denied publickey
+
+Hata:
+
+```text
+Permission denied (publickey)
+```
+
+Çözüm:
+
+```text
+- SSH key oluşturulmalı.
+- Public key Bitbucket SSH Keys alanına eklenmeli.
+- Kullanıcının ilgili repo yetkisi kontrol edilmeli.
+```
+
+Test:
+
+```bash
+ssh -T git@bitbucket2.etiya.com
+```
+
+---
+
+### ssh connecting ekranında kalıyor
+
+Bu genelde network/VPN/port erişimi problemidir.
+
+Kontrol:
+
+```bash
+ssh -vT git@bitbucket2.etiya.com
+```
+
+Port kontrolü:
+
+```bash
+nc -vz bitbucket2.etiya.com 22
+```
+
+`nc` yoksa:
+
+```bash
+sudo apt install -y netcat-openbsd
+```
+
+---
+
+### MCP auth sonrası curl bağlantı hatası
+
+Hata:
+
+```text
+curl: (7) Failed to connect to 127.0.0.1 port XXXXX
+```
+
+Sebep:
+
+```text
+opencode mcp auth etiyawiki komutu kapanmıştır.
+Callback server artık çalışmıyordur.
+```
+
+Çözüm:
+
+```text
+1. opencode mcp auth etiyawiki komutunu tekrar başlat.
+2. İlk terminali açık bırak.
+3. Browser login sonrası callback URL’yi kopyala.
+4. İkinci terminalde curl "CALLBACK_URL" çalıştır.
+```
+
+---
+
+## 12. Repository Yapısı
+
+```text
 data-engineer/
-├── .github/workflows/security.yml       # CI: truffleHog, shellcheck, registry validation
-├── registry.json                        # OCX registry definition
-├── install.sh                           # Single-command installer (opencode + Devin)
+├── .github/workflows/security.yml
+├── registry.json
+├── install.sh
 ├── components/
-│   ├── commands/                        # 7 core opencode commands
-│   ├── devin-workflows/                 # 6 Devin CLI workflow SKILL.md files (dbt-test-monitor yalnızca opencode command'idir)
-│   │   ├── analyze/SKILL.md
-│   │   ├── execute/SKILL.md
-│   │   ├── investigate/SKILL.md
-│   │   ├── jira/SKILL.md
-│   │   ├── repo/SKILL.md
-│   │   └── review/SKILL.md
-│   ├── commands_legacy/                 # Legacy commands archive
-│   └── skills/                          # opencode SKILL.md files (data-engineer, caveman, context7)
+│   ├── commands/
+│   │   ├── analyze.md
+│   │   ├── execute.md
+│   │   ├── investigate.md
+│   │   ├── jira.md
+│   │   ├── repo.md
+│   │   ├── review.md
+│   │   └── dbt-test-monitor.md
+│   ├── commands_legacy/
+│   └── skills/
+│       ├── data-engineer/
+│       ├── caveman/
+│       └── context7/
 ├── LICENSE
 └── README.md
 ```
 
-## Legacy
+---
 
-Eski command'ler (`commit`, `test`, `typecheck`, `data_investigation`, `jira_action`, `jira_review`, `project_resolver`, `repo_apply`) `commands_legacy/` altında arşivlendi:
+## 13. Legacy Commands
 
-```bash
-ocx add data-engineer/commands-legacy
+Eski command’ler `commands_legacy/` altında arşivlenmiştir.
+
+Örnek:
+
+```text
+commit
+test
+typecheck
+data_investigation
+jira_action
+jira_review
+project_resolver
+repo_apply
 ```
+
+---
 
 ## License
 
