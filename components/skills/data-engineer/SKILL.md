@@ -62,6 +62,75 @@ Before repository or code inspection, the AI must identify or ask for:
 
 If any of these are missing or ambiguous, the AI must stop and ask the user for clarification.
 
+## Snowflake CLI Terminal-Based Read-Only DB Access
+
+The AI must not manage direct database connections or credentials inside this repository or command package.
+
+If database access is needed for analysis, the AI may use the user's WSL/Linux terminal Snowflake CLI installation, but only under strict read-only rules.
+
+Default safe pattern:
+
+snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+
+Rules:
+
+The AI must not store, request, print, or manage Snowflake credentials.
+The data-engineer package must not contain database connection details.
+Snowflake connection details must stay in the user's local Snowflake CLI configuration.
+The default connection for testing must be preprod, for example darwin_preprod.
+Prod connections must not be used without explicit user approval.
+The AI may only run read-only queries through Snowflake CLI.
+Allowed query types:
+SELECT
+SHOW
+DESCRIBE
+Forbidden query types:
+INSERT
+UPDATE
+DELETE
+MERGE
+CREATE
+DROP
+TRUNCATE
+ALTER
+CALL
+COPY INTO
+PUT
+GET
+The AI must not run ETL reruns, dbt jobs, Dagster jobs, Jenkins jobs, cron changes, or scheduler actions automatically.
+The AI must not run dbtf test, dbt run, dbt test, or any job execution command automatically unless the user explicitly asks and approves.
+For large tables, the AI must prefer count, summary, or limited diagnostic queries first.
+SELECT * is allowed only with LIMIT.
+The AI must avoid selecting unnecessary PII or sensitive columns.
+The AI must clearly show the snow sql command before running or asking the user to run it.
+If the query targets prod, is expensive, touches sensitive data, or is not clearly read-only, the AI must stop and ask for explicit approval.
+
+For dbt test monitoring, the preferred first query pattern is:
+
+snow sql --connection darwin_preprod --query "
+SELECT
+    table_name,
+    test_name,
+    status,
+    failures,
+    rows_affected,
+    message,
+    run_started_at
+FROM DWH_OPR.parsed_test_results
+WHERE LOWER(status) IN ('warn', 'fail')
+  AND COALESCE(failures, 0) > 0
+ORDER BY failures DESC
+LIMIT 20;
+"
+
+The AI must treat Snowflake CLI as a terminal execution helper, not as an embedded DB connector.
+
+The AI must still clearly distinguish:
+
+confirmed findings from executed read-only queries
+hypotheses based on generated SQL
+assumptions that require manual verification
+
 ## Core Safety Rules
 
 The AI must:
@@ -73,7 +142,7 @@ The AI must:
 * Do not assume database connection details.
 * Do not ask for passwords, tokens, API keys, or secrets.
 * Do not include DB credentials in outputs.
-* Do not execute SQL automatically.
+* Do not execute SQL automatically unless the user explicitly asks for it and the query is read-only, safe, and executed through the user's Snowflake CLI terminal  environment.
 * Do not run DB write operations.
 * Do not modify files without explicit user approval.
 * Do not commit or push without explicit user approval.
@@ -476,7 +545,7 @@ When generating validation SQL:
   * sample records
 * For calculation issues, recompute the value step by step.
 * For ETL errors, include safe diagnostic SELECT queries.
-* Do not execute the SQL automatically.
+* * Do not execute generated SQL automatically. If the user explicitly asks to run a query, use only read-only Snowflake CLI execution with safe `SELECT`, `SHOW`, or `DESCRIBE` statements and follow the Snowflake CLI Terminal-Based Read-Only DB Access rules.
 
 ## Repository Action Workflow
 

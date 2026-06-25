@@ -516,6 +516,34 @@ WHERE LOWER(status) IN ('warn', 'fail')
       )
 ORDER BY failures DESC, table_name, test_name;
 ```
+### 7. Snowflake CLI ile önemli warn/fail sonuçlarını okuma
+
+```bash
+snow sql --connection darwin_preprod --query "
+SELECT
+    table_name,
+    test_name,
+    status,
+    failures,
+    rows_affected,
+    message,
+    run_started_at
+FROM DWH_OPR.parsed_test_results
+WHERE LOWER(status) IN ('warn', 'fail')
+  AND COALESCE(failures, 0) > 0
+ORDER BY failures DESC
+LIMIT 20;
+"
+```
+
+Bu sorgu sadece `status = warn/fail` ve `failures > 0` olan önemli dbt test sonuçlarını getirir.
+
+Sonuçlar geldikten sonra command:
+
+* test tipini sınıflandırmalı,
+* tablo/kolon bilgisini `test_name` alanından ayrıştırmalı,
+* DWH doğrulaması için `DWH_MICROSERVICE` şemasına yönelik güvenli SELECT SQL’leri üretmeli,
+* gerekiyorsa Snowflake CLI ile doğrulama sorgusunu çalıştırmalıdır.
 
 ---
 
@@ -865,6 +893,35 @@ Bu task otomatik oluşturulmamıştır. AI tarafından taslak olarak hazırlanm�
 ```
 
 ---
+## Snowflake CLI Execution Rule
+
+Bu command doğrudan DB connection veya credential kullanmaz.
+
+Snowflake sorguları, kullanıcının WSL/Linux terminalinde kurulu olan Snowflake CLI üzerinden çalıştırılır.
+
+Varsayılan çalışma şekli:
+
+```bash
+snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+```
+
+Kurallar:
+
+* AI kendi içinde DB credential tutmaz.
+* Connection bilgileri `data-engineer` paketi içinde saklanmaz.
+* Connection bilgileri kullanıcının terminal ortamındaki Snowflake CLI config içinde kalır.
+* İlk denemeler preprod connection ile yapılmalıdır.
+* Varsayılan connection adı `darwin_preprod` kabul edilir.
+* Prod connection kullanılacaksa kullanıcıdan açık onay alınmalıdır.
+* AI sadece güvenli `SELECT` sorguları çalıştırabilir.
+* `INSERT`, `UPDATE`, `DELETE`, `MERGE`, `CREATE`, `DROP`, `TRUNCATE`, `ALTER`, `CALL`, `COPY INTO`, `PUT`, `GET` komutları yasaktır.
+* `dbtf test`, ETL rerun, Dagster/Jenkins/cron aksiyonları otomatik çalıştırılamaz.
+* Büyük tablolarda önce summary/count sorguları tercih edilmelidir.
+* `SELECT *` kullanılacaksa mutlaka `LIMIT` ile sınırlandırılmalıdır.
+* PII/hassas kolonlar gereksiz şekilde çekilmemelidir.
+
+Bu command DB sonucuna ihtiyaç duyarsa önce çalıştırılacak `snow sql` komutunu açıkça göstermelidir. Sorgu preprod ve sadece SELECT ise terminal üzerinden çalıştırabilir. Prod veya riskli görünen sorgularda kullanıcı onayı almalıdır.
+
 
 ## Safety Rules
 

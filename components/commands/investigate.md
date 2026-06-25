@@ -408,6 +408,18 @@ If still not found, clearly say:
   * include file/date/count checks when relevant
 
 ---
+## Snowflake CLI Read-Only Validation
+
+If a database validation query is needed, do not use direct DB credentials or embedded DB connectors.
+
+Use the user's WSL/Linux terminal Snowflake CLI only.
+
+Default safe pattern:
+
+```bash
+snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+```
+---
 
 ## Safety Rules
 
@@ -427,6 +439,7 @@ If still not found, clearly say:
   "Kök neden henüz doğrulanmamıştır; aşağıdaki maddeler hipotezdir."
 
 ---
+
 
 ## Output Format
 
