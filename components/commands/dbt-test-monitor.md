@@ -518,8 +518,11 @@ ORDER BY failures DESC, table_name, test_name;
 ```
 ### 7. Snowflake CLI ile önemli warn/fail sonuçlarını okuma
 
+Connection adı proje ve environment’a göre seçilmelidir.
+Genel pattern:
+
 ```bash
-snow sql --connection darwin_preprod --query "
+snow sql --connection <connection_name> --query "
 SELECT
     table_name,
     test_name,
@@ -902,7 +905,7 @@ Snowflake sorguları, kullanıcının WSL/Linux terminalinde kurulu olan Snowfla
 Varsayılan çalışma şekli:
 
 ```bash
-snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+snow sql --connection <connection_name> --query "<SELECT_SQL>"
 ```
 
 Kurallar:
