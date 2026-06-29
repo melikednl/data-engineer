@@ -72,13 +72,32 @@ Default safe pattern:
 
 snow sql --connection darwin_preprod --query "<SELECT_SQL>"
 
+Connection selection rules:
+
+The Snowflake CLI connection name must be selected according to the project and environment context.
+The AI must not hard-code a single connection as the only valid option.
+Preprod should be preferred for first validation and safe testing.
+If the user does not specify a connection, ask which Snowflake CLI connection should be used or suggest the safest available preprod connection.
+Example connection names may include:
+darwin_preprod
+darwin_msacc
+darwin_prod
+Prod connections must not be used without explicit user approval.
+
+Default safe pattern:
+
+snow sql --connection <connection_name> --query "<SELECT_SQL>"
+
+Example for preprod:
+
+snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+
 Rules:
 
 The AI must not store, request, print, or manage Snowflake credentials.
 The data-engineer package must not contain database connection details.
 Snowflake connection details must stay in the user's local Snowflake CLI configuration.
-The default connection for testing must be preprod, for example darwin_preprod.
-Prod connections must not be used without explicit user approval.
+
 The AI may only run read-only queries through Snowflake CLI.
 Allowed query types:
 SELECT
@@ -105,9 +124,11 @@ The AI must avoid selecting unnecessary PII or sensitive columns.
 The AI must clearly show the snow sql command before running or asking the user to run it.
 If the query targets prod, is expensive, touches sensitive data, or is not clearly read-only, the AI must stop and ask for explicit approval.
 
+The AI must treat Snowflake CLI as a terminal execution helper, not as an embedded DB connector.
+
 For dbt test monitoring, the preferred first query pattern is:
 
-snow sql --connection darwin_preprod --query "
+snow sql --connection <connection_name> --query "
 SELECT
     table_name,
     test_name,
