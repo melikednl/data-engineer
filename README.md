@@ -1,11 +1,13 @@
 # Data Engineer — OpenCode & Windsurf/Devin CLI Pack
 
-Etiyawiki/Jira task analizi, DWH/ETL problem inceleme, repo aksiyonları, dbt test/freshness monitoring ve Jira süreçleri için hazırlanmış Data Engineering AI workflow paketidir.
+Etiyawiki/Jira task analizi, DWH/ETL problem inceleme, repo aksiyonları, dbt test/freshness monitoring, Jira süreçleri ve opsiyonel lokal DB bağlantı standardizasyonu için hazırlanmış Data Engineering AI workflow paketidir.
 
 Bu paket şu araçlarla kullanılabilir:
 
 * OpenCode
 * Windsurf / Devin CLI
+
+Ayrıca opsiyonel olarak Snowflake, PostgreSQL ve MongoDB bağlantıları için lokal `dbconnect` helper kurulumu desteklenir.
 
 > Not: Bu repository şu an test/MVP amacıyla kişisel GitHub hesabı altında tutulmaktadır. Takım veya şirket geneli kullanım için repository’nin ortak bir organization hesabı altına taşınması ve `install.sh` içindeki `REPO` değerinin güncellenmesi önerilir.
 
@@ -328,13 +330,62 @@ dbt-test-monitor.md
 
 ---
 
-## 4. Atlassian / Etiyawiki MCP Bağlantısı
+## 4. Optional: dbconnect Kurulumu
+
+Bu bölüm opsiyoneldir. Snowflake, PostgreSQL ve MongoDB bağlantılarını tek bir lokal komut üzerinden yönetmek isteyen kullanıcılar için `dbconnect` helper kurulumu sağlar.
+
+`dbconnect` kurulumu gerçek DB/server şifresi, SSH key, token veya connection string içermez. Kurulum script’i sadece lokal dosya yapısını oluşturur.
+
+Kurulum:
+
+```bash
+bash scripts/install-dbconnect.sh
+```
+
+Kurulum sonrası lokal config dosyası oluşturulur:
+
+```text
+~/.config/dbconnect/connections.toml
+```
+
+Bu dosya kullanıcı tarafından manuel doldurulmalıdır:
+
+```bash
+vi ~/.config/dbconnect/connections.toml
+```
+
+Fish function dosyası şu path’e kopyalanır:
+
+```text
+~/.config/fish/functions/dbconnect.fish
+```
+
+Örnek test komutları:
+
+```bash
+dbconnect -c <connection_name> -q 'SELECT 1'
+dbconnect -c <connection_name> -q 'db.runCommand({ping:1})'
+```
+
+Güvenlik notları:
+
+```text
+- Gerçek DB/server şifreleri repository içinde tutulmaz.
+- connections.toml sadece kullanıcının lokal ortamında oluşturulur.
+- connections.toml dosya izni chmod 600 olarak ayarlanır.
+- SSH private key, DB password, token veya connection string AI prompt’una yazılmamalıdır.
+- Prod connection kullanılacaksa kullanıcıdan açık onay alınmalıdır.
+```
+
+---
+
+## 5. Atlassian / Etiyawiki MCP Bağlantısı
 
 Jira task içeriklerinin AI tarafından okunabilmesi için Atlassian/Etiyawiki MCP bağlantısı yapılmalıdır.
 
 ---
 
-### 4.1 OpenCode MCP Config Oluşturma
+### 5.1 OpenCode MCP Config Oluşturma
 
 Önce config klasörü oluşturulur:
 
@@ -392,7 +443,7 @@ Beklenen çıktı:
 
 ---
 
-### 4.2 MCP OAuth Authentication
+### 5.2 MCP OAuth Authentication
 
 Auth başlatılır:
 
@@ -448,7 +499,7 @@ opencode mcp list
 
 ---
 
-## 5. İlk Kullanım Testi
+## 6. İlk Kullanım Testi
 
 Darwin için:
 
@@ -469,9 +520,9 @@ Task içeriği okunup Türkçe özetleniyorsa MCP ve command kurulumu başarıl�
 
 ---
 
-## 6. Commands / Skills
+## 7. Commands / Skills
 
-## Commands
+### Commands
 
 | Command             | Açıklama                                                              |
 | ------------------- | --------------------------------------------------------------------- |
@@ -485,7 +536,7 @@ Task içeriği okunup Türkçe özetleniyorsa MCP ve command kurulumu başarıl�
 
 ---
 
-## Skills
+### Skills
 
 | Skill           | Açıklama                                                                                                          |
 | --------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -495,7 +546,7 @@ Task içeriği okunup Türkçe özetleniyorsa MCP ve command kurulumu başarıl�
 
 ---
 
-## 7. Kullanım Örnekleri
+## 8. Kullanım Örnekleri
 
 ### Jira Task Analizi
 
@@ -544,7 +595,7 @@ Task içeriği okunup Türkçe özetleniyorsa MCP ve command kurulumu başarıl�
 
 ---
 
-## 8. Önerilen Workflow
+## 9. Önerilen Workflow
 
 Genel Jira task akışı:
 
@@ -576,7 +627,7 @@ Jira task/comment taslağı üret
 
 ---
 
-## 9. Güvenlik Kuralları
+## 10. Güvenlik Kuralları
 
 Bu paket aşağıdaki güvenlik kurallarına göre tasarlanmıştır:
 
@@ -596,7 +647,7 @@ Bu paket aşağıdaki güvenlik kurallarına göre tasarlanmıştır:
 
 ---
 
-## 10. Proje Reposunu Güncelleme
+## 11. Proje Reposunu Güncelleme
 
 Bitbucket reposu güncellendikçe lokal repo güncellenmelidir.
 
@@ -624,7 +675,7 @@ ilgili klasör gerçek git repo değildir. Klasör silinip yeniden clone edilmel
 
 ---
 
-## 11. Sorun Giderme
+## 12. Sorun Giderme
 
 ### Permission denied publickey
 
@@ -700,13 +751,19 @@ Callback server artık çalışmıyordur.
 
 ---
 
-## 12. Repository Yapısı
+## 13. Repository Yapısı
+
+`components/commands` klasörü OpenCode command dosyalarını, `components/devin-workflows` klasörü ise aynı workflow’ların Windsurf / Devin CLI uyumlu versiyonlarını içerir.
 
 ```text
-data-engineer/
+ddata-engineer/
 ├── .github/workflows/security.yml
 ├── registry.json
 ├── install.sh
+├── dbconnect/
+│   └── dbconnect.fish
+├── scripts/
+│   └── install-dbconnect.sh
 ├── components/
 │   ├── commands/
 │   │   ├── analyze.md
@@ -717,6 +774,14 @@ data-engineer/
 │   │   ├── review.md
 │   │   └── dbt-test-monitor.md
 │   ├── commands_legacy/
+│   ├── devin-workflows/
+│   │   ├── analyze.md
+│   │   ├── execute.md
+│   │   ├── investigate.md
+│   │   ├── jira.md
+│   │   ├── repo.md
+│   │   ├── review.md
+│   │   └── dbt-test-monitor.md
 │   └── skills/
 │       ├── data-engineer/
 │       ├── caveman/
@@ -727,7 +792,7 @@ data-engineer/
 
 ---
 
-## 13. Legacy Commands
+## 14. Legacy Commands
 
 Eski command’ler `commands_legacy/` altında arşivlenmiştir.
 
