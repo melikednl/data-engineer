@@ -3,11 +3,18 @@ description: Final review for repo changes, investigation results and Jira readi
 agent: reviewer
 subtask: true
 ---
-Review the current work or an Etiyawiki Jira task using the Data Engineer review workflow.
+Review the current work or an Etiyawiki/Jira task using the Data Engineer review workflow.
 
-If {{args}} contains a Jira ID, use the etiyawiki MCP server to read issue {{args}}.
+If `{{args}}` contains a Jira ID, use the configured Etiyawiki/Jira MCP server to read issue `{{args}}`.
 
-Use the Data Engineer skill rules and package workflow.
+Follow the Data Engineer skill rules, especially:
+
+- Project Awareness
+- Sensitive Data Handling
+- Jira / Rovo MCP Data Safety
+- Repository Action Workflow
+- Jira Workflow
+- Core Safety Rules
 
 ## Purpose
 
@@ -15,19 +22,42 @@ This command performs final quality, safety, and readiness review for Data Engin
 
 It can review:
 
-- repository/code changes
+- repository / code changes
 - dbt model changes, when applicable
 - SQL script / procedure / Python changes
 - data investigation results
 - ETL error investigation results
-- Jira comments/logs
+- Jira comments / logs
 - worklog readiness
 - status transition readiness
-- whether the task is ready for Test or Resolved
+- whether the task is ready for `In Acceptance` or `Closed`
 
 This command must prevent false completion claims.
 
-This command is primarily a review command. It must not perform write actions unless the user explicitly asks for them and gives approval.
+This command is primarily a review command.
+
+It must not perform write actions unless the user explicitly asks for them and gives approval.
+
+It must not expose sensitive customer identifiers, personal data, credentials, tokens, private keys, SSH keys, or connection strings.
+
+---
+
+## Current Jira Workflow
+
+Follow the current project workflow:
+
+```text
+Open → In Progress → In Acceptance → Closed
+```
+
+Status meaning:
+
+- `Open` means the task is created but work has not started yet.
+- `In Progress` means the task is actively being analyzed, developed, or investigated.
+- `In Acceptance` means the work is completed and waiting for user, customer, PO, or business acceptance.
+- `Closed` means the task is completed and closed.
+- `Blocked` means progress is blocked by a dependency, missing information, access issue, approval, or external team.
+- `Cancelled` means the task is cancelled and should not continue unless exceptional action is required.
 
 ---
 
@@ -47,18 +77,22 @@ Review the available context:
 
 If there is not enough context, clearly say what is missing.
 
+Mask sensitive values in the output.
+
+Do not repeat full customer identifiers, emails, phone numbers, account IDs, invoice numbers, credentials, tokens, private keys, SSH keys, or connection strings.
+
 ---
 
 ## Repository Review
 
 If running inside a Git repository, inspect safely:
 
-~~~bash
+```bash
 git branch --show-current
 git status --short
 git diff --cached
 git diff
-~~~
+```
 
 Check:
 
@@ -71,6 +105,7 @@ Check:
 - whether the diff matches the Jira task
 - whether the change is limited to the expected scope
 - whether there are obvious syntax, logic, or safety risks
+- whether sensitive data, credentials, tokens, private keys, passwords, connection strings, or customer identifiers appear in the diff
 - whether commit/push happened, if claimed
 - whether commit message includes Jira ID, if commit exists
 - whether `git add .` was avoided unless explicitly approved
@@ -125,6 +160,8 @@ For SQL/dbt/procedure changes, check:
 - aggregation grain
 - source-to-target mapping
 - destructive SQL usage
+- sensitive column exposure
+- masking or aggregate-first approach where relevant
 
 ---
 
@@ -142,6 +179,7 @@ For data investigation or ETL error investigation, check:
 - Are root causes clearly marked as hypotheses unless verified?
 - Are validation SQLs safe and compatible with the target database?
 - Are destructive SQL statements avoided?
+- Are sensitive values masked or avoided?
 - Are missing information and next steps listed?
 - Is the suggested responsible team reasonable?
 
@@ -164,10 +202,11 @@ If Jira context is available, check:
 - whether the task is terminal
 - whether comments/logs were added only with approval
 - whether worklog is needed
-- whether evidence supports moving to Test or Resolved
-- whether missing information blocks closure
+- whether evidence supports moving to `In Acceptance` or `Closed`
+- whether missing information blocks acceptance or closure
 - whether status transition is available, if known
 - whether final comment/log is clear enough for Jira history
+- whether sensitive values are masked in comments/logs
 
 Terminal statuses include:
 
@@ -181,9 +220,13 @@ If the issue is terminal:
 - do not suggest automatic action
 - ask whether exceptional action is required
 
-Before recommending Test or Resolved, ask:
+Before recommending `In Acceptance` or `Closed`, check whether worklog is needed.
 
-"Bu task için kaç saat worklog girmemi istersin? Örn: 30m, 1h, 2h. Eğer log girmek istemiyorsan 'skip' yazabilirsin."
+If worklog is needed, ask:
+
+```text
+Bu task için kaç saat worklog girmemi istersin? Örn: 30m, 1h, 2h. Eğer log girmek istemiyorsan 'skip' yazabilirsin.
+```
 
 Do not add worklog unless the user explicitly asks and provides duration.
 
@@ -193,10 +236,16 @@ Do not transition status unless explicitly approved.
 
 ## Safety Rules
 
+Follow the centralized Data Engineer skill safety rules.
+
+This command must especially enforce:
+
 - Always respond in Turkish.
-- Use only Etiyawiki task content and user-provided context.
+- Use only Etiyawiki/Jira task content and user-provided context.
+- Mask sensitive values in responses.
 - Do not modify files.
 - Do not run DB commands.
+- Do not use `dbconnect`, `snow`, `psql`, or `mongosh`.
 - Do not execute SQL.
 - Do not run DB write operations.
 - Do not rerun ETL.
@@ -209,6 +258,7 @@ Do not transition status unless explicitly approved.
 - Do not transition Jira status without approval.
 - Do not add worklog without explicit duration.
 - Do not claim task is complete unless evidence supports it.
+- Never expose credentials, tokens, private keys, SSH keys, passwords, DB connection strings, or full customer identifiers.
 - If evidence is insufficient, say what is missing.
 
 ---
@@ -225,5 +275,5 @@ Always respond in Turkish and use this structure:
 6. Jira Durumu Kontrolü
 7. Riskler
 8. Eksik veya Belirsiz Noktalar
-9. Test / Resolved Hazır mı?
+9. In Acceptance / Closed Hazır mı?
 10. Önerilen Sonraki Aksiyon
