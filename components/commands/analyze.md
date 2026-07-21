@@ -1,24 +1,33 @@
 ---
-description: Analyze Etiyawiki Jira task — classify, extract details, decide next workflow
+description: Analyze Etiyawiki/Jira task — classify, extract details, decide next workflow
 ---
-Analyze an Etiyawiki Jira task as the Data Engineer Master Analyst Agent.
 
-Use the etiyawiki MCP server to get issue {{args}}.
+Analyze an Etiyawiki/Jira task as the Data Engineer Master Analyst Agent.
 
-Use the Data Engineer skill rules and package workflow.
+Use the configured Etiyawiki/Jira MCP server to get issue `{{args}}`.
+
+Follow the Data Engineer skill rules, especially:
+
+- Project Awareness
+- Sensitive Data Handling
+- Jira / Rovo MCP Data Safety
+- Core Safety Rules
+- Jira Workflow
 
 ## Purpose
 
-This command reads an Etiyawiki Jira task, explains it in Turkish, classifies the work type, extracts technical details, identifies missing information, and recommends the correct next workflow.
+This command reads an Etiyawiki/Jira task, explains it in Turkish, classifies the work type, extracts technical details, identifies missing information, and recommends the correct next workflow.
 
-It must support Data Engineering, DWH OPS, Data Analyst, Development, and Operations workflows across multiple projects and repositories.
+It supports Data Engineering, DWH OPS, Data Analyst, Development, and Operations workflows across multiple projects and repositories.
 
 This command is analysis-only.
 
 It must not:
+
 - modify files
 - run Git commands
 - execute SQL
+- run `dbconnect`, `snow`, `psql`, or `mongosh`
 - add Jira comments
 - transition Jira status
 - add worklog
@@ -47,7 +56,7 @@ Classify the task into one or more of these types:
 
 ## Responsibilities
 
-Read the Etiyawiki task and extract:
+Read the Etiyawiki/Jira task and extract:
 
 - Task summary
 - What needs to be done
@@ -69,7 +78,7 @@ Read the Etiyawiki task and extract:
   - log detail
   - Excel / attachment / document reference
   - database / schema / environment
-  - customer ticket reference included in Etiyawiki task
+  - customer ticket reference included in Etiyawiki/Jira task
 
 Also identify:
 
@@ -80,6 +89,8 @@ Also identify:
 - whether the task is actionable
 - whether repository resolution is needed
 - which next workflow should handle it
+
+Sensitive values from the task must be masked in the output. Do not repeat full customer identifiers, emails, phone numbers, account IDs, invoice numbers, credentials, tokens, private keys, or connection strings.
 
 ---
 
@@ -96,7 +107,7 @@ If the task requires repository, branch, file, code, config, dbt model, procedur
 If any item is missing, ambiguous, or inconsistent:
 
 - do not recommend direct repo execution
-- recommend repo workflow first
+- recommend `/repo` workflow first
 - ask the user what information is missing
 - do not assume any default local repository path
 
@@ -104,7 +115,7 @@ If any item is missing, ambiguous, or inconsistent:
 
 ## Investigation Routing Rules
 
-If the task mentions any of these, recommend the investigate workflow:
+If the task mentions any of these, recommend the `/investigate` workflow:
 
 - data mismatch
 - missing data
@@ -130,27 +141,34 @@ If the task mentions any of these, recommend the investigate workflow:
 - array size / memory issue
 - API / Mongo / downstream load issue
 
-If repository inspection is needed for investigation but local path is missing, clearly say that investigation can start from task content but repository-level lineage requires local repo path.
+If repository inspection is needed for investigation but local path is missing, clearly say that investigation can start from task content but repository-level lineage requires local repository path.
 
 ---
 
 ## Jira Action Routing Rules
 
-If the task only requires a Jira comment, status update, worklog, or closure note, recommend the jira workflow.
+If the task only requires a Jira comment, status update, worklog, acceptance note, closure note, or transition action, recommend the `/jira` workflow.
 
 Do not perform the Jira action in this command.
+
+Follow the current Jira workflow from the Data Engineer skill:
+
+```text
+Open → In Progress → In Acceptance → Closed
+```
 
 ---
 
 ## Rules
 
-- Use only Etiyawiki task content and user-provided context.
+- Use only Etiyawiki/Jira task content and user-provided context.
 - Always respond in Turkish.
 - Keep the output concise and structured.
+- Mask sensitive values in the response.
 - Do not output empty table rows.
 - If a value is missing, write `Belirtilmemiş`.
 - If a value cannot be verified, write `Doğrulanamadı`.
-- Do not invent project, repo, table, column, branch, procedure, model, or script names.
+- Do not invent project, repo, table, column, branch, procedure, model, script, job, or environment names.
 - Do not claim completion.
 - Do not include internal reasoning or debug logs.
 

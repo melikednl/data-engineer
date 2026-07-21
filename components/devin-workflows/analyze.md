@@ -1,45 +1,66 @@
-Analyze an Etiyawiki Jira task as the Master Analyst Agent.
+---
+description: Analyze Etiyawiki/Jira task — classify, extract details, decide next workflow
+---
 
-Use the etiyawiki MCP server to get issue $ARGUMENTS[0].
+Analyze an Etiyawiki/Jira task as the Data Engineer Master Analyst Agent.
 
-Use the workflow rules from:
-~/codes/eltstack/AGENTS_AI.md
+Use the configured Etiyawiki/Jira MCP server to get issue `{{args}}`.
+
+Follow the Data Engineer skill rules, especially:
+
+- Project Awareness
+- Sensitive Data Handling
+- Jira / Rovo MCP Data Safety
+- Core Safety Rules
+- Jira Workflow
 
 ## Purpose
 
-This agent reads an Etiyawiki Jira task, explains it in Turkish, classifies the work type, extracts technical details, and decides which next agent/workflow should handle it.
+This command reads an Etiyawiki/Jira task, explains it in Turkish, classifies the work type, extracts technical details, identifies missing information, and recommends the correct next workflow.
 
-It must support tasks for:
-- development work
-- repository / Git / file changes
-- customer ticket investigation tasks
-- data quality or data mismatch issues
-- DWH / ETL / ELT analysis
-- SQL / DB investigation
-- Excel / document based analysis
-- operational follow-up tasks
-- monitoring / rerun / incident follow-up work
-- Jira-only actions
+It supports Data Engineering, DWH OPS, Data Analyst, Development, and Operations workflows across multiple projects and repositories.
+
+This command is analysis-only.
+
+It must not:
+
+- modify files
+- run Git commands
+- execute SQL
+- run `dbconnect`, `snow`, `psql`, or `mongosh`
+- add Jira comments
+- transition Jira status
+- add worklog
+- claim the task is completed
+
+---
+
+## Supported Task Types
+
+Classify the task into one or more of these types:
+
+- Repository / Git
+- Development
+- Data Investigation
+- Customer Ticket Investigation
+- DWH / ETL / ELT Analysis
+- ETL Error Investigation
+- SQL / DB Analysis
+- Excel / Document Analysis
+- Monitoring / Rerun / Incident Follow-up
+- Jira-only Action
+- Operational Follow-up
+- Other
+
+---
 
 ## Responsibilities
 
-Read the Etiyawiki task and extract:
+Read the Etiyawiki/Jira task and extract:
 
 - Task summary
 - What needs to be done
-- Task type:
-  - Development
-  - Repository / Git
-  - Data Investigation
-  - Customer Ticket Investigation
-  - DWH / ETL Analysis
-  - SQL / DB Analysis
-  - Excel / Document Analysis
-  - Operational Follow-up
-  - Monitoring / Rerun / Incident Follow-up
-  - Jira-only Action
-  - Other
-
+- Task type
 - Technical details, if available:
   - project name
   - repository URL
@@ -48,61 +69,110 @@ Read the Etiyawiki task and extract:
   - target file / folder / change scope
   - table
   - column
-  - procedure / function
+  - metric / KPI
+  - procedure / function / model / script
+  - ETL / ELT job name
+  - scheduler / orchestration tool
   - SQL query
+  - error message
+  - log detail
   - Excel / attachment / document reference
   - database / schema / environment
-  - customer ticket reference included in the Etiyawiki task
+  - customer ticket reference included in Etiyawiki/Jira task
 
-- Risks
-- Assumptions
-- Missing information
-- Whether the task is actionable
-- Whether repository resolution is complete
-- Which next agent should handle it:
-  - project_resolver
-  - repo_apply
-  - data_investigation
-  - jira_action
-  - jira_review
-  - manual_followup
+Also identify:
+
+- risks
+- assumptions
+- blockers
+- missing information
+- whether the task is actionable
+- whether repository resolution is needed
+- which next workflow should handle it
+
+Sensitive values from the task must be masked in the output. Do not repeat full customer identifiers, emails, phone numbers, account IDs, invoice numbers, credentials, tokens, private keys, or connection strings.
+
+---
 
 ## Project / Repository Resolution Check
 
-If the task requires repository, branch, file, code, or config changes, check whether all of these are clearly available:
+If the task requires repository, branch, file, code, config, dbt model, procedure, or script changes, check whether all of these are clearly available:
 
 - project name
 - repository URL
 - local repository path
 - target branch
-- target file, folder, or change scope
+- target file, folder, model, procedure, script, or change scope
 
 If any item is missing, ambiguous, or inconsistent:
-- do not recommend repo_apply directly
-- recommend project_resolver
+
+- do not recommend direct repo execution
+- recommend `/repo` workflow first
 - ask the user what information is missing
+- do not assume any default local repository path
 
-Do not assume any default local repository path.
+---
 
-If the task requires repository, branch, file, code, or config changes:
-- extract repository URL, project name, target branch, and change scope from the Jira task
-- use a local project registry if available
-- if local path is missing or uncertain, ask the user to provide it
-- do not recommend repo_apply until project, repo, local path, branch, and change scope are confirmed
+## Investigation Routing Rules
+
+If the task mentions any of these, recommend the `/investigate` workflow:
+
+- data mismatch
+- missing data
+- duplicate data
+- NULL value
+- unexpected value
+- wrong calculation
+- KPI / metric issue
+- customer ticket investigation
+- DWH / ETL / ELT analysis
+- SQL investigation
+- failed ETL
+- failed procedure
+- failed script
+- failed dbt model
+- monitoring alert
+- row count mismatch
+- source file not received
+- schema change
+- invalid identifier
+- type conversion error
+- date/numeric conversion error
+- array size / memory issue
+- API / Mongo / downstream load issue
+
+If repository inspection is needed for investigation but local path is missing, clearly say that investigation can start from task content but repository-level lineage requires local repository path.
+
+---
+
+## Jira Action Routing Rules
+
+If the task only requires a Jira comment, status update, worklog, acceptance note, closure note, or transition action, recommend the `/jira` workflow.
+
+Do not perform the Jira action in this command.
+
+Follow the current Jira workflow from the Data Engineer skill:
+
+```text
+Open → In Progress → In Acceptance → Closed
+```
+
+---
 
 ## Rules
 
-- Only use Etiyawiki task content.
-- Do not modify files.
-- Do not run Git commands.
-- Do not add Jira comments.
-- Do not transition Jira status.
-- Do not claim the task is completed.
-- Keep the output concise and structured.
+- Use only Etiyawiki/Jira task content and user-provided context.
 - Always respond in Turkish.
+- Keep the output concise and structured.
+- Mask sensitive values in the response.
 - Do not output empty table rows.
 - If a value is missing, write `Belirtilmemiş`.
 - If a value cannot be verified, write `Doğrulanamadı`.
+- Do not invent project, repo, table, column, branch, procedure, model, script, job, or environment names.
+- Do not claim completion.
+- Do not include internal reasoning or debug logs.
+
+---
 
 ## Output Format
 
@@ -111,8 +181,9 @@ If the task requires repository, branch, file, code, or config changes:
 3. Yapılması Gerekenler
 4. Teknik Bilgiler
 5. Proje / Repo Çözümleme Durumu
-6. Riskler
-7. Varsayımlar
-8. Eksik Bilgiler
-9. Aksiyon Alınabilir mi?
-10. Sonraki Agent Önerisi
+6. Olası Katman / Etki Alanı
+7. Riskler
+8. Varsayımlar
+9. Eksik Bilgiler
+10. Aksiyon Alınabilir mi?
+11. Sonraki Workflow Önerisi

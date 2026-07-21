@@ -4,7 +4,7 @@
 
 This skill defines a safe and reusable workflow for Data Engineering, DWH OPS, Data Analyst, Development, and Operations teams.
 
-It helps users analyze Etiyawiki Jira tasks, classify the work type, investigate data issues, analyze ETL/ELT errors, inspect repository logic when needed, prepare validation SQL, and manage Jira follow-up steps with explicit user approval.
+It helps users analyze Etiyawiki/Jira tasks, classify the work type, investigate data issues, analyze ETL/ELT errors, inspect repository logic when needed, prepare validation SQL, and manage Jira follow-up steps with explicit user approval.
 
 This skill is designed for multiple projects, repositories, teams, and architectures.
 
@@ -18,7 +18,7 @@ Use this skill for:
 * DWH / ETL / ELT investigation
 * ETL / pipeline error analysis
 * Data quality and data mismatch analysis
-* Customer ticket investigation tasks copied into Etiyawiki
+* Customer ticket investigation tasks copied into Etiyawiki/Jira
 * SQL / DB analysis
 * Repository / Git / file changes
 * dbt model investigation when the project uses dbt
@@ -62,108 +62,204 @@ Before repository or code inspection, the AI must identify or ask for:
 
 If any of these are missing or ambiguous, the AI must stop and ask the user for clarification.
 
-## Snowflake CLI Terminal-Based Read-Only DB Access
+## Local CLI Based Read-Only DB Access
 
 The AI must not manage direct database connections or credentials inside this repository or command package.
 
-If database access is needed for analysis, the AI may use the user's WSL/Linux terminal Snowflake CLI installation, but only under strict read-only rules.
+If database access is needed for analysis, the AI may use local CLI tools available in the user's WSL/Linux terminal, such as:
 
-Default safe pattern:
+* `dbconnect`
+* `snow`
+* `psql`
+* `mongosh`
 
-snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+These tools must be treated only as terminal execution helpers, not as embedded database connectors.
 
-Connection selection rules:
+Connection details, passwords, private keys, tokens, SSH keys, and connection strings must stay in the user's local configuration files such as:
 
-The Snowflake CLI connection name must be selected according to the project and environment context.
-The AI must not hard-code a single connection as the only valid option.
-Preprod should be preferred for first validation and safe testing.
-If the user does not specify a connection, ask which Snowflake CLI connection should be used or suggest the safest available preprod connection.
-Example connection names may include:
-darwin_preprod
-darwin_msacc
-darwin_prod
-Prod connections must not be used without explicit user approval.
+* `~/.config/dbconnect/connections.toml`
+* Snowflake CLI local config
+* `~/.ssh/config`
+* local environment variables, when applicable
 
-Default safe pattern:
+The AI must never request, store, print, log, or expose these secrets.
 
+### Preferred DB Access Pattern
+
+When `dbconnect` is available, prefer it as the unified local DB access layer:
+
+```bash
+dbconnect -c <connection_name> -q "<READ_ONLY_QUERY>"
+```
+
+Snowflake CLI may also be used directly when appropriate:
+
+```bash
 snow sql --connection <connection_name> --query "<SELECT_SQL>"
+```
 
-Example for preprod:
+PostgreSQL may be used through `psql` only for read-only investigation.
 
-snow sql --connection darwin_preprod --query "<SELECT_SQL>"
+MongoDB may be used through `mongosh` only for read-only investigation.
+
+### Connection Selection Rules
+
+The connection name must be selected according to the project and environment context.
+
+The AI must not hard-code a single connection as the only valid option.
+
+Preprod or non-production connections should be preferred for first validation and safe testing.
+
+If the user does not specify a connection, ask which connection should be used or suggest the safest available preprod connection.
+
+Production connections must not be used without explicit user approval.
+
+Production indicators include but are not limited to:
+
+* connection names containing `prod`, `production`, or similar terms
+* database/schema names indicating production
+* hostnames indicating production
+* user-provided context saying the environment is production
+
+### Allowed Read-Only Operations
+
+Allowed SQL operations:
+
+* SELECT
+* SHOW
+* DESCRIBE
+* EXPLAIN
+* COUNT / GROUP BY / aggregate queries
+
+Allowed MongoDB operations:
+
+* `find`
+* `findOne`
+* `countDocuments`
+* read-only `aggregate`
+* `db.runCommand({ ping: 1 })`
+
+### Forbidden Operations
+
+Forbidden SQL operations:
+
+* INSERT
+* UPDATE
+* DELETE
+* MERGE
+* CREATE
+* DROP
+* TRUNCATE
+* ALTER
+* CALL procedures that modify data
+* COPY INTO
+* PUT
+* GET
+
+Forbidden MongoDB operations:
+
+* insertOne
+* insertMany
+* updateOne
+* updateMany
+* replaceOne
+* deleteOne
+* deleteMany
+* drop
+* dropDatabase
+* createCollection
+* createIndex
+* any write or schema-changing command
+
+The AI must not run ETL reruns, dbt jobs, Dagster jobs, Jenkins jobs, cron changes, scheduler changes, or service restarts automatically.
+
+The AI must not run `dbt run`, `dbt test`, `dbt build`, or any job execution command automatically unless the user explicitly asks and approves.
+
+### Query Safety Rules
+
+For large tables, prefer count, summary, or limited diagnostic queries first.
+
+Avoid `SELECT *`. It is allowed only with `LIMIT` and only when necessary.
+
+Avoid selecting unnecessary PII or sensitive columns.
+
+Prefer aggregate results, row counts, grouped summaries, and masked samples.
+
+If tag-based masking or masked read-only roles are available, prefer them instead of manual masking SQL patterns.
+
+If the query targets production, is expensive, touches sensitive data, or is not clearly read-only, stop and ask for explicit user approval before running or asking the user to run it.
+
+Before executing or asking the user to execute a query, clearly show the command.
+
+
+## Sensitive Data Handling
+
+When reading Jira, Confluence/Etiyawiki, repository files, terminal output, database query results, logs, Excel files, documents, screenshots, or user-provided text, treat customer identifiers and personal data as sensitive.
+
+Sensitive values include but are not limited to:
+
+* customer id / cust_id / customer_id
+* billing account id / bill_acct_id / cust_acct_id / account_id
+* product id when it can identify a customer relationship
+* msisdn / phone number / mobile number
+* email address
+* customer name / first name / last name / full name
+* address / installation address / billing address
+* invoice number / payment identifier
+* credit card, token, password, private key, SSH key, secret, connection string
 
 Rules:
 
-The AI must not store, request, print, or manage Snowflake credentials.
-The data-engineer package must not contain database connection details.
-Snowflake connection details must stay in the user's local Snowflake CLI configuration.
+* Do not repeat sensitive values verbatim in responses unless the user explicitly asks and it is strictly necessary for the investigation.
+* Prefer masked placeholders such as `[MASKED_CUST_ID]`, `[MASKED_BILL_ACCT_ID]`, `[MASKED_EMAIL]`, `[MASKED_PHONE]`, `[MASKED_ADDRESS]`, `[MASKED_SECRET]`.
+* For debugging and investigation summaries, prefer counts, table names, column names, status values, date ranges, and masked samples.
+* If Jira, Etiyawiki, terminal output, logs, or query results contain customer identifiers, summarize the issue without exposing the full values.
+* If an identifier is needed for user-side verification, show only a partial masked value such as the first 4 characters followed by `****`.
+* Never include credentials, passwords, tokens, private keys, SSH keys, or full connection strings in the response.
+* If the user provides secrets or credentials, warn that they should be removed from shared text and rotated if exposed.
 
-The AI may only run read-only queries through Snowflake CLI.
-Allowed query types:
-SELECT
-SHOW
-DESCRIBE
-Forbidden query types:
-INSERT
-UPDATE
-DELETE
-MERGE
-CREATE
-DROP
-TRUNCATE
-ALTER
-CALL
-COPY INTO
-PUT
-GET
-The AI must not run ETL reruns, dbt jobs, Dagster jobs, Jenkins jobs, cron changes, or scheduler actions automatically.
-The AI must not run dbtf test, dbt run, dbt test, or any job execution command automatically unless the user explicitly asks and approves.
-For large tables, the AI must prefer count, summary, or limited diagnostic queries first.
-SELECT * is allowed only with LIMIT.
-The AI must avoid selecting unnecessary PII or sensitive columns.
-The AI must clearly show the snow sql command before running or asking the user to run it.
-If the query targets prod, is expensive, touches sensitive data, or is not clearly read-only, the AI must stop and ask for explicit approval.
+## Jira / Rovo MCP Data Safety
 
-The AI must treat Snowflake CLI as a terminal execution helper, not as an embedded DB connector.
+Jira and Etiyawiki content read through Rovo MCP may contain customer identifiers, emails, phone numbers, account IDs, invoice numbers, names, addresses, credentials, or other sensitive data.
 
-For dbt test monitoring, the preferred first query pattern is:
+The AI may use Jira/Etiyawiki content for analysis, but must not expose sensitive values in its response.
 
-snow sql --connection <connection_name> --query "
-SELECT
-    table_name,
-    test_name,
-    status,
-    failures,
-    rows_affected,
-    message,
-    run_started_at
-FROM DWH_OPR.parsed_test_results
-WHERE LOWER(status) IN ('warn', 'fail')
-  AND COALESCE(failures, 0) > 0
-ORDER BY failures DESC
-LIMIT 20;
-"
+Rules:
 
-The AI must treat Snowflake CLI as a terminal execution helper, not as an embedded DB connector.
+* Do not repeat full customer identifiers or personal data from Jira/Etiyawiki.
+* Use masked placeholders in summaries and technical analysis.
+* Preserve technical meaning while masking sensitive values.
+* Mention that a sensitive value exists, but do not print the full value.
+* Do not copy credentials, tokens, private keys, passwords, or connection strings from Jira/Etiyawiki into the response.
+* If the task requires exact identifiers for user-side checking, ask whether the user wants to use the original Jira task directly instead of exposing the value in chat.
+* Prefer summaries such as “customer identifier is provided in the Jira task” rather than printing the actual identifier.
 
-The AI must still clearly distinguish:
+Example masked output:
 
-confirmed findings from executed read-only queries
-hypotheses based on generated SQL
-assumptions that require manual verification
+```text
+cust_id: [MASKED_CUST_ID]
+bill_acct_id: [MASKED_BILL_ACCT_ID]
+email: [MASKED_EMAIL]
+phone: [MASKED_PHONE]
+```
 
 ## Core Safety Rules
 
 The AI must:
 
 * Always respond in Turkish.
-* Use only Etiyawiki task content and user-provided context.
-* Do not read external customer Jira systems directly unless the user explicitly provides content.
+* Use only Etiyawiki/Jira task content and user-provided context.
+* Do not read external customer Jira systems directly unless the user explicitly provides content or approved MCP access is available.
 * Do not assume default repository paths.
 * Do not assume database connection details.
-* Do not ask for passwords, tokens, API keys, or secrets.
+* Do not ask for passwords, tokens, API keys, private keys, SSH keys, or secrets.
 * Do not include DB credentials in outputs.
-* Do not execute SQL automatically unless the user explicitly asks for it and the query is read-only, safe, and executed through the user's Snowflake CLI terminal  environment.
+* Do not repeat sensitive customer identifiers or personal data from Jira, Etiyawiki, terminal output, query results, logs, screenshots, documents, or Excel files.
+* Use masked placeholders for sensitive values in summaries and investigation outputs.
+* Do not execute SQL automatically unless the user explicitly asks for it and the query is read-only, safe, and executed through the user's local CLI environment.
+* Do not run any query through `dbconnect`, `snow`, `psql`, or `mongosh` unless it is read-only and safe.
+* Do not use production DB connections without explicit user approval.
+* Prefer preprod/non-production environments for first validation.
 * Do not run DB write operations.
 * Do not modify files without explicit user approval.
 * Do not commit or push without explicit user approval.
@@ -190,9 +286,10 @@ Protected branch examples:
 
 When analyzing a Jira task:
 
-1. Read the Etiyawiki task.
+1. Read the Etiyawiki/Jira task.
 2. Explain the task in Turkish.
-3. Classify the task type:
+3. Mask sensitive values in the output.
+4. Classify the task type:
 
    * Repository / Git
    * Development
@@ -205,7 +302,8 @@ When analyzing a Jira task:
    * Monitoring / Rerun / Incident Follow-up
    * Jira-only Action
    * Other
-4. Extract technical details:
+
+5. Extract technical details:
 
    * project
    * repository URL
@@ -223,9 +321,10 @@ When analyzing a Jira task:
    * scheduler / orchestration tool
    * monitoring reference
    * error message
-   * customer ticket reference included in Etiyawiki
-5. Identify risks, assumptions, missing information, and blockers.
-6. Recommend the next workflow:
+   * customer ticket reference included in Etiyawiki/Jira
+
+6. Identify risks, assumptions, missing information, and blockers.
+7. Recommend the next workflow:
 
    * repo workflow
    * data investigation workflow
@@ -246,6 +345,7 @@ For data issues, the AI must follow this investigation pattern:
    * KPI
    * metric
    * field / column
+
 3. Identify the likely data layer:
 
    * source system
@@ -259,6 +359,7 @@ For data issues, the AI must follow this investigation pattern:
    * OPR / Monitoring
    * API / Mongo / downstream layer, if relevant
    * Unknown
+
 4. Find where the problematic field is produced:
 
    * dbt model, if the project/repository uses dbt
@@ -267,6 +368,7 @@ For data issues, the AI must follow this investigation pattern:
    * Python script
    * ETL / ELT transformation file
    * API / downstream load script
+
 5. Inspect transformation logic:
 
    * selected
@@ -279,6 +381,7 @@ For data issues, the AI must follow this investigation pattern:
    * overwritten
    * unioned
    * deduplicated
+
 6. Identify upstream lineage:
 
    * temp / CTE block
@@ -290,6 +393,7 @@ For data issues, the AI must follow this investigation pattern:
    * source table
    * snapshot/history table
    * API / Mongo / downstream object, if applicable
+
 7. Determine possible root cause hypotheses:
 
    * source data issue
@@ -307,6 +411,7 @@ For data issues, the AI must follow this investigation pattern:
    * wrong grain / aggregation issue
    * late arriving data
    * schema change
+
 8. Generate Snowflake-compatible validation SQL when relevant.
 9. Clearly distinguish confirmed findings from hypotheses.
 10. List missing information and next steps.
@@ -514,6 +619,7 @@ When the Jira task mentions a problematic table, field, metric, KPI, dbt model, 
    * ETL job name
    * upstream table names
    * error keywords
+
 3. Report:
 
    * matched file paths
@@ -522,6 +628,7 @@ When the Jira task mentions a problematic table, field, metric, KPI, dbt model, 
    * where the field is selected/calculated/filtered/joined/mapped
    * upstream tables found in the code
    * downstream objects found in the code
+
 4. Do not say “procedure/model/script not found” unless repository search was actually performed.
 5. If local repository path is missing, ask the user for it.
 
@@ -550,6 +657,9 @@ When generating validation SQL:
 * Do not generate DELETE, UPDATE, MERGE, TRUNCATE, or DROP unless explicitly requested.
 * If destructive SQL is requested, mark it as DANGEROUS.
 * If table or column names are missing, do not invent them.
+* Avoid selecting sensitive columns unless they are required for the investigation.
+* Prefer masked samples or aggregate checks for customer-level data.
+* If tag-based masking or masked read-only roles are available, prefer them instead of manual masking SQL patterns.
 * For customer-level aggregate counts, first calculate per customer in a subquery, then count the result set.
 * Include checks for:
 
@@ -564,9 +674,11 @@ When generating validation SQL:
   * string length issues
   * invalid numeric/date values
   * sample records
+
 * For calculation issues, recompute the value step by step.
 * For ETL errors, include safe diagnostic SELECT queries.
-* * Do not execute generated SQL automatically. If the user explicitly asks to run a query, use only read-only Snowflake CLI execution with safe `SELECT`, `SHOW`, or `DESCRIBE` statements and follow the Snowflake CLI Terminal-Based Read-Only DB Access rules.
+* Do not execute generated SQL automatically.
+* If the user explicitly asks to run a query, use only read-only execution through `dbconnect`, Snowflake CLI, `psql`, or `mongosh`, and follow the Local CLI Based Read-Only DB Access rules.
 
 ## Repository Action Workflow
 
@@ -579,13 +691,14 @@ For repository or code changes:
    * local path
    * target branch
    * target file/change scope
+
 2. Ask for user approval before local changes.
 3. Check current branch.
 4. Avoid protected branches.
 5. Modify only the approved files.
 6. Show changed files and concise diff summary.
 7. Ask for approval before commit/push.
-8. Commit message must include Jira ID.
+8. Commit message must include Jira ID when a Jira ID exists.
 9. Push only to the confirmed target branch.
 10. Add Jira execution log only after approval.
 
@@ -593,15 +706,33 @@ The AI must not use `git add .` unless explicitly approved and justified.
 
 ## Jira Workflow
 
-For Jira actions:
+For Jira actions, follow the current project workflow:
 
-* Add comments only after approval.
-* Transition to In Progress only after work starts and user approves.
-* Ask for worklog before moving to Test or Resolved.
-* Add worklog only when the user provides a duration, such as 30m, 1h, or 2h.
-* Move to Test or Resolved only after explicit approval.
+```text
+Open → In Progress → In Acceptance → Closed
+```
+
+Status meaning:
+
+* `Open` means the task is created but work has not started yet.
+* `In Progress` means the task is actively being analyzed, developed, or investigated.
+* `In Acceptance` means the work is completed and waiting for user, customer, PO, or business acceptance.
+* `Closed` means the task is completed and closed.
+* `Blocked` means progress is blocked by a dependency, missing information, access issue, approval, or external team.
+* `Cancelled` means the task is cancelled and should not continue unless exceptional action is required.
+
+Rules:
+
+* Add Jira comments only after explicit user approval.
+* Move from `Open` to `In Progress` only when work starts and the user approves.
+* Move to `In Acceptance` only when the work is completed, verified, summarized, and the user approves.
+* Move to `Closed` only after explicit user approval and acceptance is confirmed.
+* Ask for worklog duration before moving to `In Acceptance` or `Closed` if worklog is required.
+* Add worklog only when the user provides a clear duration, such as `30m`, `1h`, or `2h`.
 * Never close the issue automatically.
-* If the issue is Cancelled, Closed, Resolved, or Done, stop and ask whether exceptional action is required.
+* If the issue is `Blocked`, summarize the blocker and ask the user before taking action.
+* If the issue is `Cancelled`, `Closed`, `Resolved`, or `Done`, stop and ask whether exceptional action is required.
+* Do not transition Jira status based only on assumptions.
 
 ## Output Style
 
@@ -620,6 +751,7 @@ Do not include:
 * unnecessary debug logs
 * repeated sections
 * empty table rows
+* unmasked sensitive values
 
 If a value is missing, write:
 

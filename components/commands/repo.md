@@ -1,11 +1,18 @@
 ---
 description: Resolve repository context and safely apply approved code changes
 ---
-Resolve repository context and apply safe repository changes for Etiyawiki Jira tasks.
+Resolve repository context and apply safe repository changes for Etiyawiki/Jira tasks.
 
-Use the etiyawiki MCP server to get issue {{args}}.
+Use the configured Etiyawiki/Jira MCP server to get issue `{{args}}`.
 
-Use the Data Engineer skill rules and package workflow.
+Follow the Data Engineer skill rules, especially:
+
+- Project Awareness
+- Repository Action Workflow
+- Sensitive Data Handling
+- Jira / Rovo MCP Data Safety
+- Core Safety Rules
+- Jira Workflow
 
 ## Purpose
 
@@ -16,21 +23,42 @@ It supports:
 - project / repository resolution
 - local path validation
 - branch validation
-- file/code/config change planning
+- file / code / config change planning
 - dbt model changes when applicable
 - SQL script or procedure changes when applicable
 - Python script changes when applicable
+- scheduler / orchestration config changes when applicable
+- API / Mongo / downstream script changes when applicable
 - safe Git diff preparation
 - commit and push only after explicit user approval
 
 This command must prevent the AI from using the wrong repository, wrong branch, wrong local path, or wrong file.
 
+This command may inspect and modify repository files only after the required context is confirmed and the user explicitly approves the change.
+
+It must not:
+
+- assume a default repository path
+- modify files without explicit user approval
+- modify unrelated files
+- run DB write operations
+- run ETL reruns
+- update control tables
+- add Jira comments
+- transition Jira status
+- add worklog
+- commit without explicit user approval
+- push without explicit user approval
+- force push
+- touch protected branches
+
 ---
 
 ## Phase 1 — Repository Resolution
 
-Read the Etiyawiki task and extract:
+Read the Etiyawiki/Jira task and extract:
 
+- Jira ID
 - project name
 - repository URL
 - local repository path
@@ -38,7 +66,7 @@ Read the Etiyawiki task and extract:
 - target file / folder / model / procedure / script / change scope
 - expected action
 - related environment
-- Jira ID
+
 
 Repository execution is allowed only if all of these are confirmed:
 
@@ -59,6 +87,8 @@ If any item is missing, ambiguous, inconsistent, or not verifiable:
 
 Never assume a default local repository path.
 
+Sensitive values from Jira/Etiyawiki task content must be masked in the output.
+
 ---
 
 ## Phase 2 — Technology Awareness
@@ -69,7 +99,7 @@ Before modifying files, inspect or infer from confirmed repository context wheth
 - SQL scripts
 - stored procedures
 - Python ETL scripts
-- scheduler/orchestration configs
+- scheduler / orchestration configs
 - API / Mongo / downstream load scripts
 - other project-specific structures
 
@@ -82,7 +112,7 @@ Do not assume:
 
 Guidance:
 
-- Darwin-like projects may use dbt, procedures, SQL scripts, or other transformation logic.
+- Darwin-like projects may use dbt, procedures, SQL scripts, Python scripts, or other transformation logic.
 - Fizz-like projects may use dbt in some flows, but procedure/script/Python/API based ETL may also be relevant.
 - Maya-like projects may include SEM layer investigation.
 - Unknown projects must be inspected before assuming the technology.
@@ -98,16 +128,19 @@ Before modifying anything, summarize:
 - confirmed local path
 - current branch
 - target branch
-- target files/change scope
+- target files / change scope
 - planned change
 - risk level
 - protected branch check
+- sensitive data / credential exposure risk, if relevant
 
 Then ask:
 
-"Bu repo değişikliğini uygulamamı ister misin? (yes/no)"
+```text
+Bu repo değişikliğini uygulamamı ister misin? (yes/no)
+```
 
-Do not modify files unless the user says yes.
+Do not modify files unless the user explicitly approves.
 
 ---
 
@@ -122,17 +155,21 @@ If the user approves:
 5. Fetch target branch if needed.
 6. Checkout target branch only after approval.
 7. Stop if target branch is protected:
+
    - main
    - master
    - prod
    - production
    - preprod
    - release/*
+
 8. Apply only the approved local change.
 9. Do not modify unrelated files.
-10. Show changed files.
-11. Show concise diff summary.
-12. Stop if unexpected files changed.
+10. Do not edit credential files, secret files, private keys, `.env`, local DB config, or local SSH config.
+11. Show changed files.
+12. Show concise diff summary.
+13. Stop if unexpected files changed.
+14. Stop if the diff appears to contain credentials, tokens, private keys, passwords, connection strings, or sensitive customer values.
 
 ---
 
@@ -140,13 +177,15 @@ If the user approves:
 
 After showing the diff summary, ask:
 
-"Değişiklikleri commit ve push yapmamı ister misin? (yes/no)"
+```text
+Değişiklikleri commit ve push yapmamı ister misin? (yes/no)
+```
 
-If user says yes:
+If the user explicitly approves:
 
 - run `git add` only for relevant changed files
 - do not use `git add .` unless explicitly approved and justified
-- commit with a message containing the Jira ID
+- commit with a message containing the Jira ID when a Jira ID exists
 - push only to the confirmed target branch
 - report commit hash if available
 - suggest Jira execution log summary
@@ -157,32 +196,35 @@ Do not commit or push if the user does not explicitly approve.
 
 ## Safety Rules
 
-- Always respond in Turkish.
-- Use only Etiyawiki task content and user-provided context.
-- Never assume a default repository path.
-- Never run Git commands if repo/path/branch/change scope is missing.
-- Never checkout branch without confirmed repo/path/branch and approval.
-- Never modify files without approval.
-- Never modify unrelated files.
-- Never commit without approval.
-- Never push without approval.
-- Never force push.
-- Never touch protected branches:
-  - main
-  - master
-  - prod
-  - production
-  - preprod
-  - release/*
-- Never run DB write operations.
-- Never update control tables automatically.
-- Never rerun ETL automatically.
-- If the task is Cancelled, Closed, Resolved, or Done, stop and ask whether exceptional action is required.
-- If the target file/branch does not exist, stop and explain.
+Follow the centralized Data Engineer skill safety rules.
+
+This command must especially enforce:
+
+- no default repository path assumptions
+- no Git commands when repo/path/branch/change scope is missing
+- no checkout without confirmed repo/path/branch and approval
+- no file modification without explicit approval
+- no unrelated file modification
+- no credential, token, private key, SSH key, `.env`, local DB config, or connection string changes
+- no sensitive data exposure in output
+- no commit without explicit approval
+- no push without explicit approval
+- no force push
+- no protected branch changes
+- no DB write operations
+- no control table update
+- no ETL rerun
+- no Jira comments or Jira status transitions from this command
+
+If the task is `Cancelled`, `Closed`, `Resolved`, or `Done`, stop and ask whether exceptional action is required.
+
+If the target file or branch does not exist, stop and explain.
 
 ---
 
 ## Output Format
+
+Before execution:
 
 1. Repo İş Özeti
 2. Proje Bilgisi
