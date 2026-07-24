@@ -65,7 +65,7 @@ Git kullanıcı bilgisi:
 
 ```bash
 git config --global user.name "Ad Soyad"
-git config --global user.email "ad.soyad@etiya.com"
+git config --global user.email "ad.soyad@gmail.com"
 ```
 
 Kontrol:
@@ -111,7 +111,7 @@ ls -la ~/.ssh
 Eğer `id_ed25519.pub` yoksa yeni SSH key oluşturun:
 
 ```bash
-ssh-keygen -t ed25519 -C "ad.soyad@etiya.com"
+ssh-keygen -t ed25519 -C "ad.soyad@gmail.com"
 ```
 
 Sorular geldiğinde Enter ile geçebilirsiniz.
@@ -181,14 +181,14 @@ Darwin:
 
 ```bash
 cd ~/codes
-git clone ssh://git@bitbucket2.etiya.com:7999/dwh_darwin/eltstack.git darwin
+git clone <DARWIN_REPO_SSH_URL> darwin
 ```
 
 Fizz:
 
 ```bash
 cd ~/codes
-git clone ssh://git@bitbucket2.etiya.com:7999/dwh_fizz/eltstack.git fizz
+git clone <FIZZ_REPO_SSH_URL> fizz
 ```
 
 Maya için ilgili repo URL’si ile aynı mantık kullanılabilir:
