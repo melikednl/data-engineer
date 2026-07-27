@@ -139,6 +139,33 @@ Allowed MongoDB operations:
 * read-only `aggregate`
 * `db.runCommand({ ping: 1 })`
 
+### Credential and Config File Safety
+
+Never read credential/config files such as:
+
+- `~/.config/dbconnect/connections.toml`
+- `~/.config/snowflake/config.toml`
+- `~/.ssh/config`
+- `~/.env`
+- `.env` files
+- private key files
+- token or secret files
+
+Never use `cat`, `grep`, `sed`, `awk`, `less`, `head`, or similar commands on credential/config files.
+
+Never extract DB passwords from config files.
+
+Never set or print `PGPASSWORD`, `SNOWSQL_PWD`, tokens, private keys, or connection strings.
+
+For PostgreSQL access, use only the approved wrapper command:
+
+```bash
+dbconnect -c <connection_name> -q "<SELECT_SQL>"
+Do not bypass dbconnect by reading its config and calling psql directly.
+
+If a DB connection fails, do not inspect credential files or environment variables. Stop and ask the user for the next step.
+```
+
 ### Forbidden Operations
 
 Forbidden SQL operations:
