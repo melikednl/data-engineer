@@ -84,6 +84,81 @@ Connection details, passwords, private keys, tokens, SSH keys, and connection st
 
 The AI must never request, store, print, log, or expose these secrets.
 
+## OpenMetadata MCP Read-Only Access
+
+OpenMetadata MCP may be used only for read-only metadata lookup and investigation enrichment.
+
+The purpose of OpenMetadata MCP usage is to help the Data Engineer understand:
+- which tables contain the requested columns,
+- which database, schema, service, or source system owns the data,
+- column names and data types,
+- table owners,
+- tags and classifications,
+- upstream and downstream lineage,
+- possible source-to-target flow,
+- candidate tables for dbt model development.
+
+### Allowed OpenMetadata MCP Tools
+
+Only the following OpenMetadata MCP tools are allowed:
+
+- `search_metadata`
+- `semantic_search`
+- `get_entity_details`
+- `get_entity_lineage`
+- `get_test_definitions`
+- `root_cause_analysis`
+
+These tools may be used only to read metadata.
+
+### Forbidden OpenMetadata MCP Tools
+
+The following OpenMetadata MCP tools must never be used:
+
+- `create_glossary_term`
+- `create_glossary`
+- `patch_entity`
+- `create_lineage`
+- `create_test_case`
+- `create_metric`
+- `create_classification`
+- `create_tag`
+- `create_domain`
+- `create_data_product`
+
+Never create, update, patch, delete, classify, tag, assign ownership, create lineage, create test cases, create metrics, create domains, or create data products through OpenMetadata MCP.
+
+### OpenMetadata Credential Safety
+
+Never read, print, request, expose, or store OpenMetadata tokens.
+
+Never inspect files, environment variables, shell history, process environments, SSH configs, OpenMetadata configs, secret files, private keys, `.env` files, or credential files to discover OpenMetadata authentication data.
+
+Do not run raw `curl` commands with Authorization headers from inside the AI workflow unless the user explicitly provides a safe manual testing context. Prefer configured MCP tools.
+
+If OpenMetadata MCP authentication fails:
+- Do not inspect token/config/secret files.
+- Do not ask the user to paste the token into chat.
+- Stop and ask the user or platform owner to verify the MCP/token configuration.
+
+### OpenMetadata Usage in Data Engineering Workflows
+
+When a user asks for a new report, dbt model, data mapping, column search, lineage analysis, or source table discovery, OpenMetadata MCP can be used to enrich the analysis.
+
+Recommended metadata lookup flow:
+
+1. Search for the requested table or column names using `search_metadata` or `semantic_search`.
+2. For relevant candidates, use `get_entity_details` with the exact `entityType` and `fullyQualifiedName` returned by search.
+3. Use `get_entity_lineage` when source-to-target flow, upstream dependencies, or downstream impact is needed.
+4. Summarize candidate sources with database, schema, table, columns, owners, tags, and lineage.
+5. Clearly separate OpenMetadata findings from assumptions.
+6. If multiple candidate tables exist, explain why one table is preferred.
+7. Generate dbt model SQL only after explaining source selection and join assumptions.
+
+Do not assume a table is the correct source only because a column name matches. Prefer lineage, schema context, naming conventions, owner information, and table purpose when available.
+
+If OpenMetadata results are incomplete, outdated, ambiguous, or missing lineage, explicitly state the limitation.
+
 ### Preferred DB Access Pattern
 
 When `dbconnect` is available, prefer it as the unified local DB access layer:

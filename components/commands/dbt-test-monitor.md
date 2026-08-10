@@ -850,6 +850,34 @@ If Jira write action is requested, route through `/jira` or ask for explicit app
 
 ---
 
+## OpenMetadata Enrichment for dbt Test Failures
+
+When dbt test failures involve a table or model that can be found in OpenMetadata, use OpenMetadata MCP only for read-only enrichment.
+
+Possible enrichment fields:
+- table owner,
+- service,
+- database,
+- schema,
+- tags,
+- tier,
+- upstream lineage,
+- downstream lineage,
+- related source tables,
+- sensitive data indicators if tags are available.
+
+Use this context to improve:
+- impact analysis,
+- ownership routing,
+- Jira task/comment draft,
+- validation priority,
+- downstream risk assessment.
+
+Do not create or update OpenMetadata test cases.
+Do not create lineage.
+Do not patch tags or ownership.
+Do not modify metadata.
+
 ## Safety Rules
 
 Follow the centralized Data Engineer skill safety rules.
