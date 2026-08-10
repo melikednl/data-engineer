@@ -232,6 +232,47 @@ Kök neden henüz doğrulanmamıştır; aşağıdaki maddeler hipotezdir.
 ```
 
 ---
+## OpenMetadata Context Enrichment
+
+When the investigation involves a table, column, dbt model, report requirement, source mapping, or lineage question, use OpenMetadata MCP as an optional read-only metadata source.
+
+Allowed OpenMetadata usage:
+- Search tables by table name.
+- Search columns by column name.
+- Read table details.
+- Read owners, tags, database, schema, service, and table type.
+- Read upstream and downstream lineage.
+- Use metadata to identify candidate source tables for dbt model development.
+
+Required workflow:
+1. Identify table names, column names, report fields, or business terms from the user request.
+2. Search OpenMetadata for matching tables or columns.
+3. List candidate tables with:
+   - service
+   - database
+   - schema
+   - table
+   - matching columns
+   - owners
+   - tags
+   - lineage availability
+4. If one candidate is preferred, explain why.
+5. If multiple candidates are possible, do not guess silently. Present alternatives and assumptions.
+6. Use `get_entity_details` only with exact `fullyQualifiedName` values returned by OpenMetadata search.
+7. Use `get_entity_lineage` when lineage or impact analysis is needed.
+8. Do not use any OpenMetadata create, patch, update, delete, tag, ownership, glossary, lineage creation, metric creation, or test case creation tools.
+
+For dbt development requests, produce:
+- source analysis,
+- recommended source tables,
+- join assumptions,
+- filter assumptions,
+- dbt model structure,
+- SQL draft,
+- dbt test suggestions,
+- open questions.
+
+Clearly mark any missing metadata, missing lineage, or uncertain join condition.
 
 ## ETL Error Investigation Workflow
 

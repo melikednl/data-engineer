@@ -159,6 +159,18 @@ Open → In Progress → In Acceptance → Closed
 
 ---
 
+## OpenMetadata Routing Check
+
+If the Jira task or user request contains table names, column names, report fields, dbt model names, or lineage questions, do not perform deep metadata investigation inside `/analyze`.
+
+Instead:
+- identify the possible metadata lookup need,
+- mention that OpenMetadata MCP can be used in `/investigate`,
+- suggest `/investigate` as the next workflow when source table discovery, lineage, owner, tags, or dbt model design is required.
+
+Do not call OpenMetadata write tools.
+Do not create, update, patch, tag, or modify metadata.
+
 ## Rules
 
 - Use only Etiyawiki/Jira task content and user-provided context.
