@@ -28,8 +28,8 @@ else
   DETECTED_CLI="opencode"
 fi
 
-# --- Detect Windsurf base dir ---
-detect_windsurf_dir() {
+# --- Detect Devin/Windsurf base dir ---
+detect_devin_dir() {
   local paths=(
     "$HOME/.codeium/windsurf"
     "$HOME/.codeium/windsurf-next"
@@ -48,10 +48,18 @@ detect_windsurf_dir() {
 # --- Parse args ---
 CLI="$DETECTED_CLI"
 TARGET="global"
+CUSTOM_TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --global) TARGET="global" ;;
     --project) TARGET="project" ;;
+    --target-dir)
+      CUSTOM_TARGET_DIR="${2:-}"
+      if [ -z "$CUSTOM_TARGET_DIR" ]; then
+        echo "Error: --target-dir requires a path"
+        exit 1
+      fi
+      shift ;;
     --opencode) CLI="opencode" ;;
     --devin|--windsurf) CLI="devin" ;;
     --help|-h)
@@ -63,6 +71,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --windsurf    Same as --devin"
       echo "  --global      Install globally (default)"
       echo "  --project     Install in current project only"
+      echo "  --target-dir  Custom install directory for Devin/Windsurf global install"
       echo "  --help, -h    Show this help"
       echo ""
       echo "Auto-detection: Devin/Windsurf CLI > opencode"
@@ -132,21 +141,27 @@ install_opencode() {
 # --- Install Windsurf/Devin ---
 install_devin() {
   if [ "$TARGET" = "global" ]; then
-    WINDSURF_DIR="$(detect_windsurf_dir)"
-    WORKFLOWS_DIR="$WINDSURF_DIR/global_workflows"
-    SKILLS_DIR="$WINDSURF_DIR/skills"
-    echo -e "${GREEN}→ Installing for Windsurf/Devin (global — $WINDSURF_DIR)${NC}"
+    if [ -n "$CUSTOM_TARGET_DIR" ]; then
+      DEVIN_DIR="$CUSTOM_TARGET_DIR"
+    else
+      DEVIN_DIR="$(detect_devin_dir)"
+    fi
+    WORKFLOWS_DIR="$DEVIN_DIR/global_workflows"
+    SKILLS_DIR="$DEVIN_DIR/skills"
+    echo -e "${GREEN}→ Installing for Devin/Windsurf (global — $DEVIN_DIR)${NC}"
   else
     PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
     WORKFLOWS_DIR="$PROJECT_ROOT/.devin/workflows"
     SKILLS_DIR="$PROJECT_ROOT/.devin/skills"
-    echo -e "${GREEN}→ Installing for Windsurf/Devin (project — $PROJECT_ROOT/.devin/)${NC}"
+    echo -e "${GREEN}→ Installing for Devin/Windsurf (project — $PROJECT_ROOT/.devin/)${NC}"
   fi
 
+  mkdir -p "$WORKFLOWS_DIR" "$SKILLS_DIR"
+
   echo -e "${CYAN}Downloading workflows...${NC}"
-  for cmd in analyze execute investigate jira repo review; do
+  for cmd in analyze execute investigate jira repo review dbt-test-monitor; do
     curl -sfL "$BASE_URL/devin-workflows/$cmd.md" -o "$WORKFLOWS_DIR/$cmd.md" \
-      && echo "  → global_workflows/$cmd.md" \
+      && echo "  → workflows/$cmd.md" \
       || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
   done
 
@@ -166,8 +181,8 @@ install_devin() {
   done
 
   echo ""
-  echo -e "${GREEN}✅ Installed for Windsurf/Devin CLI!${NC}"
-  echo -e "${YELLOW}   Workflows: /analyze /execute /investigate /jira /repo /review${NC}"
+  echo -e "${GREEN}✅ Installed for Devin/Windsurf CLI!${NC}"
+  echo -e "${YELLOW}   Workflows: /analyze /execute /investigate /jira /repo /review /dbt-test-monitor${NC}"
   echo -e "${YELLOW}   Skills: caveman, context7${NC}"
 }
 
