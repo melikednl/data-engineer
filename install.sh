@@ -48,10 +48,18 @@ detect_devin_dir() {
 # --- Parse args ---
 CLI="$DETECTED_CLI"
 TARGET="global"
+CUSTOM_TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --global) TARGET="global" ;;
     --project) TARGET="project" ;;
+    --target-dir)
+      CUSTOM_TARGET_DIR="${2:-}"
+      if [ -z "$CUSTOM_TARGET_DIR" ]; then
+        echo "Error: --target-dir requires a path"
+        exit 1
+      fi
+      shift ;;
     --opencode) CLI="opencode" ;;
     --devin|--windsurf) CLI="devin" ;;
     --help|-h)
@@ -63,6 +71,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --windsurf    Same as --devin"
       echo "  --global      Install globally (default)"
       echo "  --project     Install in current project only"
+      echo "  --target-dir  Custom install directory for Devin/Windsurf global install"
       echo "  --help, -h    Show this help"
       echo ""
       echo "Auto-detection: Devin/Windsurf CLI > opencode"
@@ -132,7 +141,11 @@ install_opencode() {
 # --- Install Windsurf/Devin ---
 install_devin() {
   if [ "$TARGET" = "global" ]; then
-    DEVIN_DIR="$(detect_devin_dir)"
+    if [ -n "$CUSTOM_TARGET_DIR" ]; then
+      DEVIN_DIR="$CUSTOM_TARGET_DIR"
+    else
+      DEVIN_DIR="$(detect_devin_dir)"
+    fi
     WORKFLOWS_DIR="$DEVIN_DIR/global_workflows"
     SKILLS_DIR="$DEVIN_DIR/skills"
     echo -e "${GREEN}→ Installing for Devin/Windsurf (global — $DEVIN_DIR)${NC}"
