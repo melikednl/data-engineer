@@ -11,6 +11,19 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
+copy_or_download() {
+  local local_file="$1"
+  local remote_url="$2"
+  local dest_file="$3"
+
+  mkdir -p "$(dirname "$dest_file")"
+
+  if [ -f "$local_file" ]; then
+    cp "$local_file" "$dest_file"
+  else
+    curl -sfL "$remote_url" -o "$dest_file"
+  fi
+}
 
 echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║   Data Engineer — Pack Installer         ║${NC}"
@@ -118,7 +131,7 @@ install_opencode() {
 
   echo -e "${CYAN}Downloading commands...${NC}"
   for cmd in analyze execute investigate jira repo review dbt-test-monitor; do
-    curl -sfL "$BASE_URL/commands/$cmd.md" -o "$COMMANDS_DIR/$cmd.md" \
+    copy_or_download "components/commands/$cmd.md" "$BASE_URL/commands/$cmd.md" "$COMMANDS_DIR/$cmd.md" \
       && echo "  → $cmd.md" \
       || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
   done
@@ -126,7 +139,7 @@ install_opencode() {
   echo -e "${CYAN}Downloading skills...${NC}"
   for skill_file in data-engineer/SKILL.md caveman/SKILL.md context7/SKILL.md context7/library-registry.md; do
     mkdir -p "$SKILLS_DIR/$(dirname "$skill_file")"
-    curl -sfL "$BASE_URL/skills/$skill_file" -o "$SKILLS_DIR/$skill_file" \
+    copy_or_download "components/skills/$skill_file" "$BASE_URL/skills/$skill_file" "$SKILLS_DIR/$skill_file" \
       && echo "  → $skill_file" \
       || echo -e "  ${YELLOW}⚠  Failed: $skill_file${NC}"
   done
@@ -160,9 +173,15 @@ install_devin() {
 
   echo -e "${CYAN}Downloading workflows...${NC}"
   for cmd in analyze execute investigate jira repo review dbt-test-monitor; do
-    curl -sfL "$BASE_URL/devin-workflows/$cmd.md" -o "$WORKFLOWS_DIR/$cmd.md" \
+    mkdir -p "$SKILLS_DIR/$cmd"
+
+    copy_or_download "components/devin-workflows/$cmd.md" "$BASE_URL/devin-workflows/$cmd.md" "$WORKFLOWS_DIR/$cmd.md" \
       && echo "  → workflows/$cmd.md" \
-      || echo -e "  ${YELLOW}⚠  Failed: $cmd.md${NC}"
+      || echo -e "  ${YELLOW}⚠  Failed: workflows/$cmd.md${NC}"
+
+    copy_or_download "components/devin-workflows/$cmd.md" "$BASE_URL/devin-workflows/$cmd.md" "$SKILLS_DIR/$cmd/SKILL.md" \
+      && echo "  → skills/$cmd/SKILL.md" \
+      || echo -e "  ${YELLOW}⚠  Failed: skills/$cmd/SKILL.md${NC}"
   done
 
   echo -e "${CYAN}Downloading skills...${NC}"
@@ -170,11 +189,11 @@ install_devin() {
     dest="$SKILLS_DIR/$skill"
     mkdir -p "$dest"
     if [ "$skill" = "context7" ]; then
-      curl -sfL "$BASE_URL/skills/context7/SKILL.md" -o "$dest/SKILL.md" \
+      copy_or_download "components/skills/context7/SKILL.md" "$BASE_URL/skills/context7/SKILL.md" "$dest/SKILL.md" \
         && echo "  → skills/$skill/SKILL.md" \
         || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
     else
-      curl -sfL "$BASE_URL/skills/$skill/SKILL.md" -o "$dest/SKILL.md" \
+      copy_or_download "components/skills/$skill/SKILL.md" "$BASE_URL/skills/$skill/SKILL.md" "$dest/SKILL.md" \
         && echo "  → skills/$skill/SKILL.md" \
         || echo -e "  ${YELLOW}⚠  Failed: $skill/SKILL.md${NC}"
     fi
@@ -183,7 +202,8 @@ install_devin() {
   echo ""
   echo -e "${GREEN}✅ Installed for Devin/Windsurf CLI!${NC}"
   echo -e "${YELLOW}   Workflows: /analyze /execute /investigate /jira /repo /review /dbt-test-monitor${NC}"
-  echo -e "${YELLOW}   Skills: caveman, context7${NC}"
+  echo -e "${YELLOW}   Workflow skills: analyze, execute, investigate, jira, repo, review, dbt-test-monitor${NC}"
+  echo -e "${YELLOW}   Skills: data-engineer, caveman, context7${NC}"
 }
 
 # --- Run ---
