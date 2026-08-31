@@ -1,3 +1,8 @@
+---
+name: data-engineer
+description: Safe reusable Data Engineering workflow for Jira, DWH, ETL, dbt, repository and metadata investigations
+---
+
 # Data Engineer Skill
 
 ## Purpose
