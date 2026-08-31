@@ -1,6 +1,8 @@
 ---
+name: jira
 description: Safe Jira operations for comments, transitions, worklog, closure and task creation
 ---
+
 Handle safe Jira operations for Etiyawiki/Jira tasks.
 
 Use the configured Etiyawiki/Jira MCP server to work on issue `{{args}}`.

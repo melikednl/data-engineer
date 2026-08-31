@@ -1,6 +1,8 @@
 ---
+name: dbt-test-monitor
 description: Analyze dbt test/freshness results from DWH_OPR.parsed_test_results and generate safe validation SQL
 ---
+
 
 Analyze dbt test and freshness results from `DWH_OPR.parsed_test_results` as the Data Engineering dbt monitoring agent.
 
