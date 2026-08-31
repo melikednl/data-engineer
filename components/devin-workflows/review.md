@@ -1,8 +1,10 @@
 ---
+name: review
 description: Final review for repo changes, investigation results and Jira readiness
 agent: reviewer
 subtask: true
 ---
+
 Review the current work or an Etiyawiki/Jira task using the Data Engineer review workflow.
 
 If `{{args}}` contains a Jira ID, use the configured Etiyawiki/Jira MCP server to read issue `{{args}}`.

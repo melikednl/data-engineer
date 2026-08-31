@@ -1,6 +1,8 @@
 ---
+name: repo
 description: Resolve repository context and safely apply approved code changes
 ---
+
 Resolve repository context and apply safe repository changes for Etiyawiki/Jira tasks.
 
 Use the configured Etiyawiki/Jira MCP server to get issue `{{args}}`.

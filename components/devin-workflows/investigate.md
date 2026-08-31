@@ -1,8 +1,9 @@
 ---
-
+name: investigate
 description: Data, ETL, DWH, SQL and root cause investigation for Jira tasks
 subtask: true
 ---
+
 
 Investigate an Etiyawiki/Jira task as the Data Engineer Investigation Agent.
 

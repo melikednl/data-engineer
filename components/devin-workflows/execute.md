@@ -1,7 +1,9 @@
 ---
+name: execute
 description: Execute full Data Engineer workflow for Etiyawiki/Jira tasks
 subtask: true
 ---
+
 Execute an Etiyawiki/Jira task using the Data Engineer multi-workflow package.
 
 Use the configured Etiyawiki/Jira MCP server to get issue `{{args}}`.

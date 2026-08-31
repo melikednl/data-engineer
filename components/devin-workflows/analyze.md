@@ -1,6 +1,8 @@
 ---
+name: analyze
 description: Analyze Etiyawiki/Jira task — classify, extract details, decide next workflow
 ---
+
 
 Analyze an Etiyawiki/Jira task as the Data Engineer Master Analyst Agent.
 
